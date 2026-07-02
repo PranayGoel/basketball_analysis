@@ -1,5 +1,6 @@
 import os
 import argparse
+import time
 from utils import read_video, save_video
 from trackers import PlayerTracker, BallTracker
 from team_assigner import TeamAssigner
@@ -64,6 +65,8 @@ def parse_args():
                         help='Number of frames per YOLO prediction batch')
     parser.add_argument('--no-stubs', dest='use_stubs', action='store_false',
                         help='Ignore cached stub files and recompute all detections')
+    parser.add_argument('--profile', action='store_true',
+                        help='Print per-stage wall-clock timings and end-to-end FPS')
     parser.set_defaults(use_stubs=True)
     return parser.parse_args()
 
@@ -73,8 +76,11 @@ def main():
     device = resolve_device(args.device)
     print(f"[config] device={device} conf={args.conf} batch_size={args.batch_size} use_stubs={args.use_stubs}")
 
+    t0 = time.perf_counter()
+
     # Read Video
     video_frames = read_video(args.input_video)
+    t_read = time.perf_counter()
 
     ## Initialize Tracker
     player_tracker = PlayerTracker(PLAYER_DETECTOR_PATH, device=device, conf=args.conf, batch_size=args.batch_size)
@@ -98,6 +104,7 @@ def main():
                                                                     read_from_stub=args.use_stubs,
                                                                     stub_path=os.path.join(args.stub_path, 'court_key_points_stub.pkl')
                                                                     )
+    t_detect = time.perf_counter()
 
     # Remove Wrong Ball Detections
     ball_tracks = ball_tracker.remove_wrong_detections(ball_tracks)
@@ -139,6 +146,7 @@ def main():
     )
     player_distances_per_frame = speed_and_distance_calculator.calculate_distance(tactical_player_positions)
     player_speed_per_frame = speed_and_distance_calculator.calculate_speed(player_distances_per_frame)
+    t_analysis = time.perf_counter()
 
     # Draw output   
     # Initialize Drawers
@@ -192,8 +200,28 @@ def main():
                                                     ball_aquisition,
                                                     )
 
+    t_draw = time.perf_counter()
+
     # Save video
     save_video(output_video_frames, args.output_video)
+    t_save = time.perf_counter()
+
+    if args.profile:
+        stages = [
+            ("read_video", t_read - t0),
+            ("detection", t_detect - t_read),
+            ("analysis", t_analysis - t_detect),
+            ("draw", t_draw - t_analysis),
+            ("save", t_save - t_draw),
+        ]
+        total = t_save - t0
+        num_frames = len(video_frames)
+        print("\n[profile] stage timings (seconds):")
+        for name, secs in stages:
+            print(f"  {name:12s} {secs:8.2f}")
+        print(f"  {'TOTAL':12s} {total:8.2f}")
+        if total > 0:
+            print(f"[profile] {num_frames} frames -> {num_frames / total:.2f} FPS end-to-end")
 
 if __name__ == '__main__':
     main()

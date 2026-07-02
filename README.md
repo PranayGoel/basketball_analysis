@@ -1,5 +1,29 @@
 # 🏀 Basketball Video Analysis
 
+> **Fork note:** This is a fork of [abdullahtarek/basketball_analysis](https://github.com/abdullahtarek/basketball_analysis). The original pipeline, models, and tutorial are by **Abdullah Tarek** — full credit to him for the baseline. My additions on top are summarized in [What I changed](#-what-i-changed-in-this-fork) below; the original documentation follows unchanged.
+
+## 🛠️ What I changed in this fork
+
+Working from Abdullah's baseline, I focused on making the pipeline runnable and measurable across different hardware (I originally built this on a low-spec laptop):
+
+- **Device selection** — `--device {auto,cpu,cuda,mps}` with auto-detection (`cuda → mps → cpu`), so the same code runs on a CUDA GPU, Apple Silicon, or plain CPU.
+- **Configurable inference** — `--conf` and `--batch_size` are now flags instead of hardcoded values, plus `--no-stubs` to force a fresh recompute (previously `read_from_stub=True` was hardcoded in four places).
+- **Stage profiling** — `--profile` prints per-stage wall-clock timings and end-to-end FPS.
+- **Smaller models on constrained hardware** — the detectors load any YOLO weights file, so a smaller variant (e.g. a `*n`/`*s` size) can be dropped into `models/` for lower-VRAM machines.
+
+### Performance (my runs)
+
+Measured with `python main.py <video> --no-stubs --profile`. _(To be filled from my own runs — do not treat as measured yet.)_
+
+| Setup | Device | Model size | End-to-end FPS |
+|---|---|---|---|
+| _laptop_ | _cpu / mps_ | _e.g. nano_ | _fill in_ |
+| _GPU VM_ | cuda | _e.g. small_ | _fill in_ |
+
+**My demo:** _add your own recorded demo link here — the "Demo Video" section below is the original author's._
+
+---
+
 Analyze basketball footage with automated detection of players, ball, team assignment, and more. This repository integrates object tracking, zero-shot classification, and custom keypoint detection for a fully annotated basketball game experience.
 
 Leveraging the convenience of Roboflow for dataset management and Ultralytics' YOLO models for both training and inference, this project provides a robust framework for basketball video analysis.
