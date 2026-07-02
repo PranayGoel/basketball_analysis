@@ -10,8 +10,11 @@ class CourtKeypointDetector:
     The CourtKeypointDetector class uses a YOLO model to detect court keypoints in image frames. 
     It also provides functionality to draw these detected keypoints on the frames.
     """
-    def __init__(self, model_path):
+    def __init__(self, model_path, device='cpu', conf=0.5, batch_size=20):
         self.model = YOLO(model_path)
+        self.device = device
+        self.conf = conf
+        self.batch_size = batch_size
     
     def get_court_keypoints(self, frames,read_from_stub=False, stub_path=None):
         """
@@ -33,10 +36,11 @@ class CourtKeypointDetector:
             if len(court_keypoints) == len(frames):
                 return court_keypoints
         
-        batch_size=20
         court_keypoints = []
-        for i in range(0,len(frames),batch_size):
-            detections_batch = self.model.predict(frames[i:i+batch_size],conf=0.5)
+        for i in range(0, len(frames), self.batch_size):
+            detections_batch = self.model.predict(
+                frames[i:i+self.batch_size], conf=self.conf, device=self.device
+            )
             for detection in detections_batch:
                 court_keypoints.append(detection.keypoints)
 

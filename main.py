@@ -23,8 +23,30 @@ from configs import(
     PLAYER_DETECTOR_PATH,
     BALL_DETECTOR_PATH,
     COURT_KEYPOINT_DETECTOR_PATH,
-    OUTPUT_VIDEO_PATH
+    OUTPUT_VIDEO_PATH,
+    DEVICE,
+    CONF_THRESHOLD,
+    BATCH_SIZE
 )
+
+
+def resolve_device(choice):
+    """Resolve 'auto' to the best available backend (cuda -> mps -> cpu).
+
+    Any explicit value ('cpu', 'cuda', 'mps') is passed through unchanged.
+    """
+    if choice != 'auto':
+        return choice
+    try:
+        import torch
+        if torch.cuda.is_available():
+            return 'cuda'
+        if getattr(torch.backends, 'mps', None) is not None and torch.backends.mps.is_available():
+            return 'mps'
+    except Exception:
+        pass
+    return 'cpu'
+
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Basketball Video Analysis')
@@ -33,34 +55,47 @@ def parse_args():
                         help='Path to output video file')
     parser.add_argument('--stub_path', type=str, default=STUBS_DEFAULT_PATH,
                         help='Path to stub directory')
+    parser.add_argument('--device', type=str, default=DEVICE,
+                        choices=['auto', 'cpu', 'cuda', 'mps'],
+                        help="Inference device; 'auto' picks cuda -> mps -> cpu")
+    parser.add_argument('--conf', type=float, default=CONF_THRESHOLD,
+                        help='YOLO detection confidence threshold')
+    parser.add_argument('--batch_size', type=int, default=BATCH_SIZE,
+                        help='Number of frames per YOLO prediction batch')
+    parser.add_argument('--no-stubs', dest='use_stubs', action='store_false',
+                        help='Ignore cached stub files and recompute all detections')
+    parser.set_defaults(use_stubs=True)
     return parser.parse_args()
 
 def main():
     args = parse_args()
-    
+
+    device = resolve_device(args.device)
+    print(f"[config] device={device} conf={args.conf} batch_size={args.batch_size} use_stubs={args.use_stubs}")
+
     # Read Video
     video_frames = read_video(args.input_video)
-    
+
     ## Initialize Tracker
-    player_tracker = PlayerTracker(PLAYER_DETECTOR_PATH)
-    ball_tracker = BallTracker(BALL_DETECTOR_PATH)
+    player_tracker = PlayerTracker(PLAYER_DETECTOR_PATH, device=device, conf=args.conf, batch_size=args.batch_size)
+    ball_tracker = BallTracker(BALL_DETECTOR_PATH, device=device, conf=args.conf, batch_size=args.batch_size)
 
     ## Initialize Keypoint Detector
-    court_keypoint_detector = CourtKeypointDetector(COURT_KEYPOINT_DETECTOR_PATH)
+    court_keypoint_detector = CourtKeypointDetector(COURT_KEYPOINT_DETECTOR_PATH, device=device, conf=args.conf, batch_size=args.batch_size)
 
     # Run Detectors
     player_tracks = player_tracker.get_object_tracks(video_frames,
-                                       read_from_stub=True,
+                                       read_from_stub=args.use_stubs,
                                        stub_path=os.path.join(args.stub_path, 'player_track_stubs.pkl')
                                       )
-    
+
     ball_tracks = ball_tracker.get_object_tracks(video_frames,
-                                                 read_from_stub=True,
+                                                 read_from_stub=args.use_stubs,
                                                  stub_path=os.path.join(args.stub_path, 'ball_track_stubs.pkl')
                                                 )
     ## Run KeyPoint Extractor
     court_keypoints_per_frame = court_keypoint_detector.get_court_keypoints(video_frames,
-                                                                    read_from_stub=True,
+                                                                    read_from_stub=args.use_stubs,
                                                                     stub_path=os.path.join(args.stub_path, 'court_key_points_stub.pkl')
                                                                     )
 
@@ -74,7 +109,7 @@ def main():
     team_assigner = TeamAssigner()
     player_assignment = team_assigner.get_player_teams_across_frames(video_frames,
                                                                     player_tracks,
-                                                                    read_from_stub=True,
+                                                                    read_from_stub=args.use_stubs,
                                                                     stub_path=os.path.join(args.stub_path, 'player_assignment_stub.pkl')
                                                                     )
 
