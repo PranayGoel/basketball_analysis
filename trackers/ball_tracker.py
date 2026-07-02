@@ -14,8 +14,11 @@ class BallTracker:
     This class provides methods to detect the ball in video frames, process detections
     in batches, and refine tracking results through filtering and interpolation.
     """
-    def __init__(self, model_path):
-        self.model = YOLO(model_path) 
+    def __init__(self, model_path, device='cpu', conf=0.5, batch_size=20):
+        self.model = YOLO(model_path)
+        self.device = device
+        self.conf = conf
+        self.batch_size = batch_size
 
     def detect_frames(self, frames):
         """
@@ -27,10 +30,11 @@ class BallTracker:
         Returns:
             list: YOLO detection results for each frame.
         """
-        batch_size=20 
-        detections = [] 
-        for i in range(0,len(frames),batch_size):
-            detections_batch = self.model.predict(frames[i:i+batch_size],conf=0.5)
+        detections = []
+        for i in range(0, len(frames), self.batch_size):
+            detections_batch = self.model.predict(
+                frames[i:i+self.batch_size], conf=self.conf, device=self.device
+            )
             detections += detections_batch
         return detections
 
