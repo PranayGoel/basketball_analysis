@@ -1,26 +1,37 @@
-# 🏀 Basketball Video Analysis
+# 🏀 Basketball Video Analysis + AI Insight Layer
 
-> **Fork note:** This is a fork of [abdullahtarek/basketball_analysis](https://github.com/abdullahtarek/basketball_analysis). The original pipeline, models, and tutorial are by **Abdullah Tarek** — full credit to him for the baseline. My additions on top are summarized in [What I changed](#-what-i-changed-in-this-fork) below; the original documentation follows unchanged.
+> **Fork note:** This is a fork of [abdullahtarek/basketball_analysis](https://github.com/abdullahtarek/basketball_analysis). The original detection/tracking/tactical-view pipeline and tutorial are by **Abdullah Tarek** — full credit to him for the baseline. Everything below "What I added" is mine; the original documentation follows unchanged further down.
 
-## 🛠️ What I changed in this fork
+## 🧠 What I added: turning tracking data into answers
 
-Working from Abdullah's baseline, I focused on making the pipeline runnable and measurable across different hardware (I originally built this on a low-spec laptop):
+The pipeline computes rich per-frame data (positions, speed, possession, passes) but the only outputs were an annotated video and (previously) nothing else — none of it was something a coach or player could actually *use* without translating raw numbers into meaning themselves. This closes that gap:
 
-- **Device selection** — `--device {auto,cpu,cuda,mps}` with auto-detection (`cuda → mps → cpu`), so the same code runs on a CUDA GPU, Apple Silicon, or plain CPU.
-- **Configurable inference** — `--conf` and `--batch_size` are now flags instead of hardcoded values, plus `--no-stubs` to force a fresh recompute (previously `read_from_stub=True` was hardcoded in four places).
-- **Stage profiling** — `--profile` prints per-stage wall-clock timings and end-to-end FPS.
-- **Smaller models on constrained hardware** — the detectors load any YOLO weights file, so a smaller variant (e.g. a `*n`/`*s` size) can be dropped into `models/` for lower-VRAM machines.
+- **`game_report.py`** — aggregates the pipeline's outputs into one JSON report: per-player total distance + avg/max speed, per-team ball-possession %, pass/interception counts. Player-to-team attribution uses a majority vote across all frames a player appears in (not a naive per-frame lookup — `TeamAssigner` resets its mapping every 50 frames, so a single-frame lookup can be wrong). New `--report <path>` flag.
+- **`llm_client.py`** — a provider-agnostic LLM client (OpenAI, Gemini, or DeepSeek — all reachable through the identical `OpenAI(api_key=..., base_url=...)` SDK shape, confirmed via direct testing of the compat endpoints). Config-driven (`LLM_PROVIDER`, `LLM_API_KEY`, `LLM_MODEL` env vars), not hardcoded to one vendor.
+- **`game_qa.py`** — two AI features built on the report:
+  - **Natural-language game summary** — one LLM call, the full report JSON in context, producing a readable recap. This is a well-established pattern (automated sports journalism — Automated Insights' AP partnership, Stats Perform's AI Studio), applied here to video-derived tracking data instead of a box score.
+  - **Tool-calling Q&A chat** — ask free-form questions about the game. LLMs are measurably unreliable doing arithmetic/ranking by reading raw JSON in-context (~12% accuracy gap vs. delegating to real code, per the Program-of-Thoughts paper, [arXiv:2211.12588](https://arxiv.org/abs/2211.12588)) — so every *computed* answer routes through one of four tested, pure functions (`get_player_stats`, `rank_players_by_stat`, `compute_team_possession_pct`, `compare_players`) that the model calls as tools. The model decides *which* tool to call and phrases the answer; it never does the arithmetic itself.
 
-### Performance (my runs)
+**Verification**: `game_report.py`, `llm_client.py`, and `game_qa.py`'s four tool functions have zero ML/GPU dependency and are covered by a real, executed test suite (53 tests, `python3 -m unittest discover -s tests -t .`, all passing — see below). The LLM-call paths themselves are tested against a fake client with scripted responses (see `tests/fakes.py`); I don't currently have a funded API key, so end-to-end output quality against a *real* model hasn't been verified by me yet — that's an honest gap, not a claim.
 
-Measured with `python main.py <video> --no-stubs --profile`. _(To be filled from my own runs — do not treat as measured yet.)_
+### Roadmap (researched, not yet built — needs GPU access to build or verify)
+Two further upgrades came out of researching current sports-CV practice, both deferred because — unlike the AI layer above — they need real GPU/model access to build or verify at all:
+- **Tracking**: swap ByteTrack for [BoT-SORT](https://github.com/mikel-brostrom/boxmot) (motion + camera-compensation), fixing occlusion/re-entry issues plain ByteTrack can't handle.
+- **Jersey-number recognition**: OCR on player crops so the report attributes stats to a player number instead of just a team color — the single most differentiating feature per research into current sports-analytics repos (e.g. SoccerNet's official baseline).
 
-| Setup | Device | Model size | End-to-end FPS |
-|---|---|---|---|
-| _laptop_ | _cpu / mps_ | _e.g. nano_ | _fill in_ |
-| _GPU VM_ | cuda | _e.g. small_ | _fill in_ |
+## 🧪 Tests
 
-**My demo:** _add your own recorded demo link here — the "Demo Video" section below is the original author's._
+Runs with **zero pip installs** — everything under test is either pure Python or uses dependency-injected fakes (`tests/fakes.py` duck-types the `openai` SDK client shape without needing the package installed):
+```
+python3 -m unittest discover -s tests -t .
+```
+53 tests covering: bbox geometry, speed/distance calculation (including a regression test that the real source fps is used, not a hardcoded assumption), a fixed possession-streak-counting bug (see below), pass/interception detection, the `game_report.py` aggregator, and `llm_client.py`/`game_qa.py`'s provider-config and tool-calling logic.
+
+## 🔧 Other fixes in this round
+- **Possession-streak counting bug**: `BallAquisitionDetector` used to replace its entire streak-tracking dict every frame, so a single noisy frame for a different candidate reset an otherwise-solid possession streak back to 1. Now streaks decay by one on a miss instead of resetting to zero.
+- **Fps correctness**: `save_video` hardcoded a 24fps output regardless of the source video's real frame rate, and `calculate_speed` defaulted to an assumed 30fps — both now read and use the actual source fps.
+- **Per-substage profiling**: `--profile`'s single "analysis" bucket used to lump together 6 different pipeline stages (team assignment, ball acquisition, pass/interception, tactical view, speed/distance); it's now broken down per stage so it actually identifies the bottleneck.
+- **`requirements.txt`**: removed a redundant duplicate OpenCV pin (`opencv_python` alongside `opencv_python_headless` — only one is needed; no `cv2.imshow`/GUI calls exist anywhere in this codebase).
 
 ---
 

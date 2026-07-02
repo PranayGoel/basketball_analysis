@@ -206,12 +206,26 @@ class BallAquisitionDetector:
             )
 
             if best_player_id != -1:
-                number_of_consecutive_frames = consecutive_possession_count.get(best_player_id, 0) + 1
-                consecutive_possession_count = {best_player_id: number_of_consecutive_frames} 
+                # Decay (rather than wipe) every other candidate's streak so a single-frame
+                # detection wobble doesn't zero out an otherwise-solid possession run.
+                # Replacing the whole dict here (the original behavior) meant one noisy frame
+                # for a different candidate reset the real possessor's count back to 1.
+                for pid in list(consecutive_possession_count.keys()):
+                    if pid == best_player_id:
+                        continue
+                    consecutive_possession_count[pid] -= 1
+                    if consecutive_possession_count[pid] <= 0:
+                        del consecutive_possession_count[pid]
+
+                consecutive_possession_count[best_player_id] = consecutive_possession_count.get(best_player_id, 0) + 1
 
                 if consecutive_possession_count[best_player_id] >= self.min_frames:
                     possession_list[frame_num] = best_player_id
             else:
-                consecutive_possession_count ={}
+                # No candidate this frame — decay everyone by one instead of wiping all streaks.
+                for pid in list(consecutive_possession_count.keys()):
+                    consecutive_possession_count[pid] -= 1
+                    if consecutive_possession_count[pid] <= 0:
+                        del consecutive_possession_count[pid]
     
         return possession_list
