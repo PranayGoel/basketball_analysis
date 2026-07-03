@@ -2,9 +2,9 @@
 Provider-agnostic LLM client for the AI insight layer (narrative generation + the
 tool-calling Q&A chat in game_qa.py).
 
-Design note: OpenAI, Google Gemini, and DeepSeek are all reachable through the exact
-same `openai` SDK client shape (`OpenAI(api_key=..., base_url=...)` +
-`.chat.completions.create(...)`) -- switching providers is a config change, not a
+Design note: OpenAI, Google Gemini, DeepSeek, and OpenRouter are all reachable
+through the exact same `openai` SDK client shape (`OpenAI(api_key=..., base_url=...)`
++ `.chat.completions.create(...)`) -- switching providers is a config change, not a
 per-provider branch. See PROVIDER_CONFIG below.
 
 The `openai` package import is deferred into get_client() (not done at module import
@@ -42,6 +42,18 @@ PROVIDER_CONFIG = {
         # no confirmed json_schema/strict guarantee. Structured-output code must not
         # assume one for this provider.
         "supports_strict_json_schema": False,
+    },
+    "openrouter": {
+        "base_url": "https://openrouter.ai/api/v1",
+        # openai/gpt-oss-20b:free was confirmed via a live query of OpenRouter's own
+        # /api/v1/models endpoint (not just docs prose) to expose BOTH
+        # response_format/structured_outputs AND tools/tool_choice on the free tier --
+        # the genuinely-free option with the least uncertainty for this codebase's
+        # needs, unlike Gemini's compat layer (documented "beta", with a confirmed
+        # bug on the 2.0 model series specifically) or Groq (whose docs explicitly
+        # disallow combining strict JSON schema with tool calling in one request).
+        "default_model": "openai/gpt-oss-20b:free",
+        "supports_strict_json_schema": True,
     },
 }
 

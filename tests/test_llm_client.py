@@ -40,6 +40,12 @@ class TestResolveProviderConfig(unittest.TestCase):
         resolved = resolve_provider_config("openai", api_key="k")
         self.assertTrue(resolved["supports_strict_json_schema"])
 
+    def test_openrouter_uses_free_tier_default_model_and_base_url(self):
+        resolved = resolve_provider_config("openrouter", api_key="k")
+        self.assertEqual(resolved["base_url"], "https://openrouter.ai/api/v1")
+        self.assertEqual(resolved["model"], "openai/gpt-oss-20b:free")
+        self.assertTrue(resolved["supports_strict_json_schema"])
+
 
 class TestCallChat(unittest.TestCase):
     def test_returns_message_content_from_a_duck_typed_client(self):
