@@ -12,7 +12,39 @@ The pipeline computes rich per-frame data (positions, speed, possession, passes)
   - **Natural-language game summary** — one LLM call, the full report JSON in context, producing a readable recap. This is a well-established pattern (automated sports journalism — Automated Insights' AP partnership, Stats Perform's AI Studio), applied here to video-derived tracking data instead of a box score.
   - **Tool-calling Q&A chat** — ask free-form questions about the game. LLMs are measurably unreliable doing arithmetic/ranking by reading raw JSON in-context (~12% accuracy gap vs. delegating to real code, per the Program-of-Thoughts paper, [arXiv:2211.12588](https://arxiv.org/abs/2211.12588)) — so every *computed* answer routes through one of four tested, pure functions (`get_player_stats`, `rank_players_by_stat`, `compute_team_possession_pct`, `compare_players`) that the model calls as tools. The model decides *which* tool to call and phrases the answer; it never does the arithmetic itself.
 
-**Verification**: `game_report.py`, `llm_client.py`, and `game_qa.py`'s four tool functions have zero ML/GPU dependency and are covered by a real, executed test suite (53 tests, `python3 -m unittest discover -s tests -t .`, all passing — see below). The LLM-call paths themselves are tested against a fake client with scripted responses (see `tests/fakes.py`); I don't currently have a funded API key, so end-to-end output quality against a *real* model hasn't been verified by me yet — that's an honest gap, not a claim.
+**Verification**: `game_report.py`, `llm_client.py`, and `game_qa.py`'s four tool functions have zero ML/GPU dependency and are covered by a real, executed test suite (54 tests, `python3 -m unittest discover -s tests -t .`, all passing — see below). The LLM-call paths themselves are tested against a fake client with scripted responses (see `tests/fakes.py`); I don't currently have a funded API key, so end-to-end output quality against a *real* model hasn't been verified by me yet — that's an honest gap, not a claim.
+
+## 🚀 Quickstart: using the AI insight layer
+
+The video pipeline itself (models, dependencies) is unchanged — see [Installation](#-installation) and [Training the Models](#-training-the-models) further down. This section covers just what's new: turning a processed video into a report, then a narrative or Q&A session.
+
+**1. Get a free API key.** [OpenRouter](https://openrouter.ai/keys) — sign up, no card required, create a key. (Any other provider in `llm_client.py`'s `PROVIDER_CONFIG` — OpenAI, Gemini, DeepSeek — works too, just costs a few cents.)
+
+**2. Set environment variables:**
+```bash
+export LLM_PROVIDER=openrouter
+export LLM_API_KEY=sk-or-...   # your OpenRouter key
+```
+
+**3. Run the pipeline with `--report`** to get the video output plus a JSON analytics report (needs the trained models from [Installation](#-installation) in place first):
+```bash
+python main.py path_to_input_video.mp4 --output_video output_videos/output_result.avi --report output_videos/game_report.json
+```
+
+**4. Generate a narrative summary or ask questions about the game:**
+```python
+import json
+from llm_client import get_client
+from game_qa import generate_game_narrative, answer_question
+
+report = json.load(open("output_videos/game_report.json"))
+client, config = get_client()  # reads LLM_PROVIDER / LLM_API_KEY from the env vars above
+
+print(generate_game_narrative(client, config["model"], report))
+print(answer_question(client, config["model"], report, "Who covered the most distance?"))
+```
+
+No API key yet? Everything in step 4 is covered by a real, passing test suite run against a fake client (see [Tests](#-tests) below) — you can read it to see exactly what each function does at zero cost.
 
 ### Roadmap (researched, not yet built — needs GPU access to build or verify)
 Two further upgrades came out of researching current sports-CV practice, both deferred because — unlike the AI layer above — they need real GPU/model access to build or verify at all:
