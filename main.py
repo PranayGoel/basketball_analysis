@@ -1,7 +1,7 @@
 import os
 import argparse
 import time
-from utils import read_video, save_video
+from utils import read_video, save_video, get_video_fps
 from trackers import PlayerTracker, BallTracker
 from team_assigner import TeamAssigner
 from court_keypoint_detector import CourtKeypointDetector
@@ -67,6 +67,8 @@ def parse_args():
                         help='Ignore cached stub files and recompute all detections')
     parser.add_argument('--profile', action='store_true',
                         help='Print per-stage wall-clock timings and end-to-end FPS')
+    parser.add_argument('--report', type=str, default=None,
+                        help='Path to write a post-game JSON analytics report (see game_report.py)')
     parser.set_defaults(use_stubs=True)
     return parser.parse_args()
 
@@ -80,6 +82,7 @@ def main():
 
     # Read Video
     video_frames = read_video(args.input_video)
+    source_fps = get_video_fps(args.input_video)
     t_read = time.perf_counter()
 
     ## Initialize Tracker
@@ -110,7 +113,7 @@ def main():
     ball_tracks = ball_tracker.remove_wrong_detections(ball_tracks)
     # Interpolate Ball Tracks
     ball_tracks = ball_tracker.interpolate_ball_positions(ball_tracks)
-   
+    t_ball_cleanup = time.perf_counter()
 
     # Assign Player Teams
     team_assigner = TeamAssigner()
@@ -119,15 +122,18 @@ def main():
                                                                     read_from_stub=args.use_stubs,
                                                                     stub_path=os.path.join(args.stub_path, 'player_assignment_stub.pkl')
                                                                     )
+    t_team_assignment = time.perf_counter()
 
     # Ball Acquisition
     ball_aquisition_detector = BallAquisitionDetector()
     ball_aquisition = ball_aquisition_detector.detect_ball_possession(player_tracks,ball_tracks)
+    t_ball_acquisition = time.perf_counter()
 
     # Detect Passes
     pass_and_interception_detector = PassAndInterceptionDetector()
     passes = pass_and_interception_detector.detect_passes(ball_aquisition,player_assignment)
     interceptions = pass_and_interception_detector.detect_interceptions(ball_aquisition,player_assignment)
+    t_pass_interception = time.perf_counter()
 
     # Tactical View
     tactical_view_converter = TacticalViewConverter(
@@ -136,6 +142,7 @@ def main():
 
     court_keypoints_per_frame = tactical_view_converter.validate_keypoints(court_keypoints_per_frame)
     tactical_player_positions = tactical_view_converter.transform_players_to_tactical_view(court_keypoints_per_frame,player_tracks)
+    t_tactical_view = time.perf_counter()
 
     # Speed and Distance Calculator
     speed_and_distance_calculator = SpeedAndDistanceCalculator(
@@ -145,8 +152,8 @@ def main():
         tactical_view_converter.actual_height_in_meters
     )
     player_distances_per_frame = speed_and_distance_calculator.calculate_distance(tactical_player_positions)
-    player_speed_per_frame = speed_and_distance_calculator.calculate_speed(player_distances_per_frame)
-    t_analysis = time.perf_counter()
+    player_speed_per_frame = speed_and_distance_calculator.calculate_speed(player_distances_per_frame, fps=source_fps)
+    t_speed_distance = time.perf_counter()
 
     # Draw output   
     # Initialize Drawers
@@ -203,23 +210,48 @@ def main():
     t_draw = time.perf_counter()
 
     # Save video
-    save_video(output_video_frames, args.output_video)
+    save_video(output_video_frames, args.output_video, fps=source_fps)
     t_save = time.perf_counter()
+
+    if args.report:
+        # team_ball_control was previously computed only inside TeamBallControlDrawer and
+        # discarded after rendering; compute it once here so the report can use it too.
+        team_ball_control = team_ball_control_drawer.get_team_ball_control(player_assignment, ball_aquisition)
+        from game_report import build_game_report
+        report = build_game_report(
+            player_assignment=player_assignment,
+            ball_aquisition=ball_aquisition,
+            passes=passes,
+            interceptions=interceptions,
+            tactical_player_positions=tactical_player_positions,
+            player_distances_per_frame=player_distances_per_frame,
+            player_speed_per_frame=player_speed_per_frame,
+            team_ball_control=team_ball_control,
+        )
+        import json
+        with open(args.report, 'w') as f:
+            json.dump(report, f, indent=2)
+        print(f"[report] wrote game report to {args.report}")
 
     if args.profile:
         stages = [
             ("read_video", t_read - t0),
             ("detection", t_detect - t_read),
-            ("analysis", t_analysis - t_detect),
-            ("draw", t_draw - t_analysis),
+            ("ball_cleanup", t_ball_cleanup - t_detect),
+            ("team_assign", t_team_assignment - t_ball_cleanup),
+            ("ball_acq", t_ball_acquisition - t_team_assignment),
+            ("pass_intercept", t_pass_interception - t_ball_acquisition),
+            ("tactical_view", t_tactical_view - t_pass_interception),
+            ("speed_distance", t_speed_distance - t_tactical_view),
+            ("draw", t_draw - t_speed_distance),
             ("save", t_save - t_draw),
         ]
         total = t_save - t0
         num_frames = len(video_frames)
         print("\n[profile] stage timings (seconds):")
         for name, secs in stages:
-            print(f"  {name:12s} {secs:8.2f}")
-        print(f"  {'TOTAL':12s} {total:8.2f}")
+            print(f"  {name:15s} {secs:8.2f}")
+        print(f"  {'TOTAL':15s} {total:8.2f}")
         if total > 0:
             print(f"[profile] {num_frames} frames -> {num_frames / total:.2f} FPS end-to-end")
 
