@@ -136,6 +136,7 @@ def build_game_report(
     player_speed_per_frame,
     team_ball_control,
     player_labels=None,
+    violations=None,
 ):
     """
     Build the full post-game JSON report.
@@ -152,6 +153,13 @@ def build_game_report(
             provided or missing a given id -- jersey-number recognition itself is future
             work (documented in the README), this parameter just keeps the report format
             forward-compatible with it.
+        violations (list[dict], optional): heuristic rule-violation events from
+            rule_violation_detector (double dribble / traveling -- see that package's
+            docstrings for the "best-effort, not a ruling" caveat). Omitted (None, the
+            default) means pose/violation detection didn't run at all this pass, so no
+            "violations" key appears in the report. An explicit empty list means it DID
+            run and found nothing -- that distinction matters downstream (e.g. a UI
+            deciding whether to show a "no violations detected" vs. "not analyzed" state).
 
     Returns:
         dict: JSON-serializable report.
@@ -169,9 +177,14 @@ def build_game_report(
             **movement_stats.get(player_id, {"total_distance_m": 0.0, "avg_speed_kmh": 0.0, "max_speed_kmh": 0.0}),
         }
 
-    return {
+    report = {
         "players": players,
         "team_possession": compute_team_possession_pct(team_ball_control),
         "events": compute_event_counts(passes, interceptions),
         "num_frames": len(ball_aquisition),
     }
+
+    if violations is not None:
+        report["violations"] = violations
+
+    return report

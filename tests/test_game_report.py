@@ -123,6 +123,38 @@ class TestBuildGameReport(unittest.TestCase):
         )
         json.dumps(report)  # raises if anything non-serializable slipped in (e.g. a numpy scalar)
 
+    def _base_report_kwargs(self):
+        return dict(
+            player_assignment=[{1: 1}],
+            ball_aquisition=[1],
+            passes=[-1],
+            interceptions=[-1],
+            tactical_player_positions=[{1: [0, 0]}],
+            player_distances_per_frame=[{}],
+            player_speed_per_frame=[{}],
+            team_ball_control=[1],
+        )
+
+    def test_build_game_report_without_violations_arg_has_no_violations_key(self):
+        # violations defaults to None -- pose/violation detection didn't run at
+        # all this pass, so "violations" shouldn't appear in the report at all
+        # (distinct from an empty list, which means it ran and found nothing).
+        report = build_game_report(**self._base_report_kwargs())
+        self.assertNotIn("violations", report)
+
+    def test_build_game_report_with_empty_violations_list_includes_empty_key(self):
+        report = build_game_report(**self._base_report_kwargs(), violations=[])
+        self.assertIn("violations", report)
+        self.assertEqual(report["violations"], [])
+
+    def test_build_game_report_with_violations_list_passes_through_verbatim(self):
+        violations = [
+            {"violation_type": "double_dribble", "player_id": 1, "start_frame": 10,
+             "end_frame": 15, "confidence": "heuristic"},
+        ]
+        report = build_game_report(**self._base_report_kwargs(), violations=violations)
+        self.assertEqual(report["violations"], violations)
+
 
 if __name__ == "__main__":
     unittest.main()

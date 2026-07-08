@@ -60,11 +60,20 @@ def save_video(ouput_video_frames,output_video_path,fps=24):
     """
     Save a sequence of frames as a video file.
 
-    Creates necessary directories if they don't exist and writes frames using XVID codec.
+    Creates necessary directories if they don't exist and writes frames using
+    the H.264 codec (fourcc 'avc1') in an MP4 container -- natively playable
+    in every major browser's <video> element, which the original 'XVID'/.avi
+    output was not (no browser decodes AVI/XviD, so the webapp's video player
+    would silently fail to load any processed video; verified empirically on
+    this machine that this OpenCV build's bundled FFmpeg can both write and
+    read back real H.264 via the 'avc1' fourcc tag -- 'h264'/'H264' fourcc
+    strings work too but OpenCV's FFmpeg backend just remaps them to 'avc1'
+    internally with a logged fallback message, so 'avc1' is used directly).
 
     Args:
         ouput_video_frames (list): List of frames to save.
         output_video_path (str): Path where the video should be saved.
+            Should use a .mp4 extension to match the actual container format.
         fps (float): Output frame rate. Defaults to 24 to preserve prior behavior for
             any existing callers that don't pass the source video's real fps.
     """
@@ -73,7 +82,7 @@ def save_video(ouput_video_frames,output_video_path,fps=24):
     if not os.path.exists(os.path.dirname(output_video_path)):
         os.makedirs(os.path.dirname(output_video_path))
 
-    fourcc = cv2.VideoWriter_fourcc(*'XVID')
+    fourcc = cv2.VideoWriter_fourcc(*'avc1')
     out = cv2.VideoWriter(output_video_path, fourcc, fps, (ouput_video_frames[0].shape[1], ouput_video_frames[0].shape[0]))
     for frame in ouput_video_frames:
         out.write(frame)

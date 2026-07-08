@@ -1,0 +1,9 @@
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+sqlalchemy>=2.0.0
+alembic>=1.13.0
+arq>=0.26.0
+redis>=5.0.0
+python-multipart>=0.0.9
+pydantic-settings>=2.5.0
+aiofiles>=24.1.0

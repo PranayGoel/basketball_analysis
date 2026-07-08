@@ -2,3 +2,12 @@ __pycache__/
 *.pt
 *.avi
 *.pkl
+.venv/
+stubs/
+output_videos/*.mp4
+webapp/backend/data/
+webapp/frontend/node_modules/
+webapp/frontend/dist/
+.env
+*.env.local
+.claude-flow/

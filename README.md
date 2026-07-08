@@ -28,7 +28,7 @@ export LLM_API_KEY=sk-or-...   # your OpenRouter key
 
 **3. Run the pipeline with `--report`** to get the video output plus a JSON analytics report (needs the trained models from [Installation](#-installation) in place first):
 ```bash
-python main.py path_to_input_video.mp4 --output_video output_videos/output_result.avi --report output_videos/game_report.json
+python main.py path_to_input_video.mp4 --output_video output_videos/output_result.mp4 --report output_videos/game_report.json
 ```
 
 **4. Generate a narrative summary or ask questions about the game:**
@@ -82,7 +82,7 @@ Training notebooks are included to help you customize and fine-tune models to su
 5.  [Training the Models](#-training-the-models)
 6.  [Usage](#-usage)
 7.  [Project Structure](#-project-structure)
-8.  [Future Work](#-future-work)
+8.  [Implemented Features](#-implemented-features-heuristic-best-effort)
 9.  [Contributing](#-contributing)
 10. [License](#-license)
 
@@ -143,7 +143,7 @@ docker images
 
 Harnessing the powerful tools offered by Roboflow and Ultralytics makes it straightforward to manage datasets, handle annotations, and train advanced object detection models. Roboflow provides an intuitive platform for dataset preprocessing and augmentation, while Ultralytics’ YOLO architectures (v5, v8, and beyond) deliver state-of-the-art detection performance.
 
-This repository relies on trained models for detecting basketballs, players, and court keypoints. You have two options to get these models:
+This repository relies on trained models for detecting basketballs, players, and court keypoints. **You don't need any of them to get started** — see [Running Without the Pretrained Weights](#-running-without-the-pretrained-weights-fallback--degraded-mode) below. For full accuracy, you have three options to get the real models:
 
 1. Download the Pretrained Weights
 
@@ -156,7 +156,7 @@ This repository relies on trained models for detecting basketballs, players, and
 
    Simply download these files and place them into the `models/` folder in your project. This allows you to run the pipelines without manually retraining.
 
-2. Train Your Own Models  
+2. Train Your Own Models From Scratch  
    The training scripts are provided in the `training_notebooks/` folder. These Jupyter notebooks use Roboflow datasets and the Ultralytics YOLO frameworks to train various detection tasks:
 
    - `basketball_ball_training.ipynb`: Trains a basketball ball detector (using YOLOv5). Incorporates motion blur augmentations to improve ball detection accuracy on fast-moving game footage.
@@ -165,7 +165,42 @@ This repository relies on trained models for detecting basketballs, players, and
 
    You can easily run these notebooks in Google Colab or another environment with GPU access. After training, download the newly generated `.pt` files and place them in the `models/` folder.
 
-## Once you have your models in place, you may proceed with the usage steps described above. If you want to retrain or fine-tune for your specific dataset, remember to adjust the paths in the notebooks and in `main.py` to point to the newly generated models.
+   ⚠️ **Do not reuse the Roboflow API key hardcoded in `basketball_player_detection_training.ipynb`** — it belongs to the original tutorial author, not you. Get your own free key at [roboflow.com](https://roboflow.com) and set it as `ROBOFLOW_API_KEY` (see `.env.example`).
+
+3. Fine-Tune the Pretrained Weights on Your Own Footage  
+   If you already have the real weights from option 1 and want to adapt them to your own game footage (different camera angle, lighting, jersey styles, etc.) without a full from-scratch retrain, use `scripts/finetune_model.py`. It loads your existing `.pt` file as the starting checkpoint (never a generic base) and continues training for a small number of epochs — much faster than the 100–500 epoch from-scratch recipes in the notebooks above:
+
+   ```bash
+   # See the resolved plan (dataset, epochs, device) without downloading or training anything:
+   python scripts/finetune_model.py --model-type player --base-weights models/player_detector.pt --dry-run
+
+   # Run it for real, and adopt the result as the new live weights when done:
+   python scripts/finetune_model.py --model-type ball --base-weights models/ball_detector_model.pt --adopt
+   ```
+
+   Requires your own `ROBOFLOW_API_KEY` (never reuse the leaked notebook key above). Run `scripts/benchmark_detection.py` before and after to confirm the fine-tune actually helped on your footage — YOLO's own training metrics only tell you it improved on the training dataset's task, not on your specific videos. `--adopt` always backs up your current weights to `<path>.pre_finetune_<timestamp>.pt.bak` before replacing them, so nothing is ever silently overwritten. See `python scripts/finetune_model.py --help` for the full set of options (custom datasets, batch size, image size, device override, etc.).
+
+Once you have your models in place, you may proceed with the usage steps described above. If you want to retrain or fine-tune for your specific dataset, remember to adjust the paths in the notebooks and in `main.py` to point to the newly generated models.
+
+### 🩹 Running Without the Pretrained Weights (Fallback & Degraded Mode)
+
+Missing one or all three `.pt` files? The pipeline now resolves each model independently instead of crashing at startup (`pipeline/model_resolution.py`):
+
+| Model | If your real weights are missing... |
+|---|---|
+| Player detector | Falls back to a generic COCO-pretrained `yolo11n.pt` (auto-downloads from Ultralytics on first use — no Google Drive step) using its built-in `person` class. |
+| Ball detector | Same fallback model, using its built-in `sports ball` class. |
+| Court keypoints | No generic fallback exists for this bespoke task — the pipeline runs in **degraded mode**: player/ball tracking, team assignment, possession, passes/interceptions, pose, and violation detection all still run normally; only the tactical bird's-eye minimap and speed/distance stats are skipped (the report's movement stats come back zeroed, honestly, rather than fabricated). |
+
+Every fallback or degraded-mode decision is logged loudly at startup, never silent, e.g.:
+
+```
+[model] player: fallback (yolo11n.pt, class='person') -- accuracy will be materially lower than the real player_detector.pt
+[model] ball: fallback (yolo11n.pt, class='sports ball') -- accuracy will be materially lower than the real ball_detector_model.pt
+[model] court_keypoints: DEGRADED (no weights found) -- tactical view and speed/distance stats will be skipped
+```
+
+Fallback accuracy is real but limited — generic COCO classes can't distinguish players from referees/spectators, or a basketball from any other round ball. This exists so the platform is runnable today and so you can smoke-test the full pipeline before sourcing the real weights, not as a long-term substitute for them. As soon as real weights exist at the canonical `models/` paths (or an override is set via `PLAYER_DETECTOR_PATH_OVERRIDE` / `BALL_DETECTOR_PATH_OVERRIDE` / `COURT_KEYPOINT_DETECTOR_PATH_OVERRIDE`), the pipeline automatically prefers them — no config changes needed.
 
 ## 🚀 Usage
 
@@ -176,7 +211,7 @@ You can run this repository’s core functionality (analysis pipeline) with Pyth
 Run the main entry point with your chosen video file:
 
 ```bash
-python main.py path_to_input_video.mp4 --output_video output_videos/output_result.avi
+python main.py path_to_input_video.mp4 --output_video output_videos/output_result.mp4
 ```
 
 - By default, intermediate “stubs” (pickled detection results) are used if found, allowing you to skip repeated detection/tracking.
@@ -197,7 +232,7 @@ docker run \
   -v $(pwd)/videos:/app/videos \
   -v $(pwd)/output_videos:/app/output_videos \
   basketball-analysis \
-  python main.py videos/input_video.mp4 --output_video output_videos/output_result.avi
+  python main.py videos/input_video.mp4 --output_video output_videos/output_result.mp4
 ```
 
 ---
@@ -226,21 +261,39 @@ docker run \
   – Detects lines and keypoints on the court using the specified model.
 
 - `team_assigner/`  
-  – Uses zero-shot classification (Hugging Face or similar) to assign players to teams based on jersey color.
+  – Discovers each team's jersey color via k-means clustering on observed player pixels (no hardcoded color names, no CLIP model), then classifies each player against those discovered team centroids with a rolling majority vote for stability.
+
+- `pose_estimator/`  
+  – Runs an off-the-shelf Ultralytics pose model on cropped, tracked player regions to estimate per-player COCO keypoints (see Implemented Features below).
+
+- `rule_violation_detector/`  
+  – Heuristic double-dribble and traveling detection built on top of pose keypoints, ball position, and possession data (see Implemented Features below).
 
 - `configs/`  
   – Holds default paths for models, stubs, and output video.
 
 ---
 
-## 🔮 Future Work
+## ✅ Implemented Features (heuristic, best-effort)
 
-As we continue to enhance the capabilities of this basketball video analysis tool, several areas for future development have been identified:
+**Pose-based rule-violation flagging.** The "Integrating a Pose Model for Advanced Rule Detection" item once listed under Future Work is implemented: pass `--pose` to `main.py` to run an off-the-shelf Ultralytics pose model (`yolo11n-pose` by default, no fine-tuning, auto-downloads on first use — no manual Google Drive step needed, unlike the other 3 models) on each tracked player, then flag possible **double dribble** and **traveling** events from the resulting keypoints, ball position, and possession data.
 
-1. **Integrating a Pose Model for Advanced Rule Detection**  
-   Incorporating a pose detection model could enable the identification of complex basketball rules such as double dribbling and traveling. By analyzing player movements and positions, the system could automatically flag these infractions, adding another layer of analysis to the video footage.
+**These are not validated officiating calls.** Real basketball rules depend on pivot-foot identification and the exact "gather" moment, neither of which is reliably derivable from noisy 2D keypoints on broadcast footage. Every flag (rendered on-video as a question, e.g. "TRAVELING?", never an assertion) should be read as "worth a human reviewing this clip" — this is an honest limitation of the approach, not a claim that the system understands basketball rules, in the same spirit as this fork's LLM section above being upfront about what hasn't been end-to-end verified.
 
-These enhancements will further refine the analysis capabilities and provide users with more comprehensive insights into basketball games.
+```bash
+python main.py path_to_input_video.mp4 --output_video output_videos/output_result.mp4 --pose --report output_videos/game_report.json
+```
+
+When `--pose` is used together with `--report`, the JSON report gains a `"violations"` array (each entry: `violation_type`, `player_id`, `start_frame`, `end_frame`, `confidence: "heuristic"`). Without `--pose`, the report has no `"violations"` key at all — an empty array specifically means pose analysis ran and found nothing, which is different from not having run.
+
+Also implemented since the original "Future Work" list: automatic team-color discovery (`team_assigner/`, k-means on observed jersey pixels, no hardcoded colors) and Kalman-filtered ball tracking (`trackers/kalman_ball_tracker.py`) — see `scripts/benchmark_detection.py` for a before/after comparison against the previous CLIP-based/naive-interpolation approach.
+
+**Fallback models + degraded mode.** The pipeline no longer requires the 3 pretrained weights to run at all — see [Running Without the Pretrained Weights](#-running-without-the-pretrained-weights-fallback--degraded-mode) above. A generic COCO model stands in for missing player/ball detectors (loudly logged, clearly lower accuracy); missing court keypoints degrade gracefully (tactical view + speed/distance skipped, everything else unaffected) rather than crashing. `scripts/finetune_model.py` complements this: once you have the real weights, fine-tune them on your own footage from the existing checkpoint instead of retraining from scratch.
+
+### Remaining roadmap (researched, not yet built — needs GPU access to build or verify)
+
+- **Tracking**: swap ByteTrack for [BoT-SORT](https://github.com/mikel-brostrom/boxmot) — evaluated during the detection-accuracy pass above and deliberately deferred: its real advantage (ReID re-identification) needs either an extra per-box model pass with no GPU available here, or degrades to near-parity with a well-tuned ByteTrack (which this fork already ships — see `configs/configs.py`'s `PLAYER_*` tuning constants).
+- **Jersey-number recognition**: OCR on player crops so the report attributes stats to a player number instead of just a team color.
 
 ## 🤝 Contributing
 

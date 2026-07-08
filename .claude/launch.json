@@ -1,0 +1,22 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "backend",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/L122609/REPOS/basketball_analysis/webapp/backend && exec /Users/L122609/REPOS/basketball_analysis/.venv/bin/uvicorn app.main:app --reload --port 8000"],
+      "port": 8000
+    },
+    {
+      "name": "worker",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/L122609/REPOS/basketball_analysis/webapp/backend && exec /Users/L122609/REPOS/basketball_analysis/.venv/bin/arq app.worker.arq_settings.WorkerSettings"]
+    },
+    {
+      "name": "frontend",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["-c", "cd /Users/L122609/REPOS/basketball_analysis/webapp/frontend && exec npm run dev"],
+      "port": 5173
+    }
+  ]
+}

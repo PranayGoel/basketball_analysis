@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /*
+   * Dark-mode-first theme, tuned for a "basketball broadcast" feel:
+   * near-black court-side background, a warm amber/orange primary accent
+   * (evokes hardwood + scoreboard LEDs), cool blue/red team colors, and an
+   * amber violation accent that reads as a referee-whistle warning.
+   *
+   * The .dark class is applied directly on <html> in index.html since this
+   * app is dark-mode-first; a `:root` (light) block is still provided for
+   * completeness / potential future light-mode toggle.
+   */
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 24 95% 53%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 24 95% 53%;
+    --radius: 0.75rem;
+
+    --team-a: 217 91% 60%;
+    --team-a-foreground: 0 0% 100%;
+    --team-b: 0 72% 51%;
+    --team-b-foreground: 0 0% 100%;
+    --violation: 38 92% 50%;
+    --violation-foreground: 26 20% 10%;
+  }
+
+  .dark {
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+    --card: 222 40% 9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 40% 9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 24 95% 58%;
+    --primary-foreground: 20 40% 8%;
+    --secondary: 222 32% 15%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 222 32% 15%;
+    --muted-foreground: 215 20% 65%;
+    --accent: 222 32% 17%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 222 28% 18%;
+    --input: 222 28% 18%;
+    --ring: 24 95% 58%;
+    --radius: 0.75rem;
+
+    --team-a: 217 91% 65%;
+    --team-a-foreground: 222 47% 6%;
+    --team-b: 0 84% 65%;
+    --team-b-foreground: 222 47% 6%;
+    --violation: 38 92% 55%;
+    --violation-foreground: 26 30% 8%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
+  }
+}
+
+@layer utilities {
+  /* Thin, unobtrusive scrollbars for the Q&A panel and library filters --
+     purely cosmetic polish, safe to ignore in non-WebKit browsers. */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-border rounded-full;
+  }
+}
