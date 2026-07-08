@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 import cv2
 
-from team_assigner.color_extractor import extract_jersey_patch, dominant_jersey_color
+from personal.basketball_analysis.team_assigner.color_extractor import extract_jersey_patch, dominant_jersey_color
 
 
 class TestExtractJerseyPatch(unittest.TestCase):

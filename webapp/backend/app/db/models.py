@@ -18,7 +18,7 @@ from typing import Optional
 from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.db.base import Base
+from personal.basketball_analysis.webapp.backend.app.db.base import Base
 
 
 class Video(Base):

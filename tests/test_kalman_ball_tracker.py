@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from trackers.kalman_ball_tracker import ConstantVelocityKalmanFilter2D
+from personal.basketball_analysis.trackers.kalman_ball_tracker import ConstantVelocityKalmanFilter2D
 
 
 class TestConstantVelocityKalmanFilter2D(unittest.TestCase):

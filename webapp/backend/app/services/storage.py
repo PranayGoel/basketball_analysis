@@ -18,7 +18,7 @@ import shutil
 from dataclasses import dataclass
 from typing import BinaryIO, Optional
 
-from app.config import settings
+from personal.basketball_analysis.webapp.backend.app.config import settings
 
 
 @dataclass

@@ -20,9 +20,9 @@ from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.db.base import Base
-from app.db.session import get_db
-from app.main import app
+from personal.basketball_analysis.webapp.backend.app.db.base import Base
+from personal.basketball_analysis.webapp.backend.app.db.session import get_db
+from personal.basketball_analysis.webapp.backend.app.main import app
 
 
 class BackendTestCase(unittest.TestCase):

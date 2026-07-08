@@ -1,7 +1,7 @@
 import json
 import unittest
 
-from game_qa import (
+from personal.basketball_analysis.game_qa import (
     get_player_stats,
     rank_players_by_stat,
     compute_team_possession_pct,
@@ -10,7 +10,7 @@ from game_qa import (
     generate_game_narrative,
     answer_question,
 )
-from tests.fakes import FakeClient, FakeResponse, FakeMessage, FakeToolCall
+from personal.basketball_analysis.tests.fakes import FakeClient, FakeResponse, FakeMessage, FakeToolCall
 
 
 SAMPLE_REPORT = {

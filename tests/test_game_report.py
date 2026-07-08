@@ -1,5 +1,5 @@
 import unittest
-from game_report import (
+from personal.basketball_analysis.game_report import (
     resolve_player_teams,
     compute_team_possession_pct,
     compute_player_movement_stats,

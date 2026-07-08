@@ -17,17 +17,17 @@ even if it doesn't care about a JSON file on disk).
 
 import os
 
-from utils import read_video, save_video, get_video_fps
-from trackers import PlayerTracker, BallTracker
-from team_assigner import TeamAssigner
-from court_keypoint_detector import CourtKeypointDetector
-from ball_aquisition import BallAquisitionDetector
-from pass_and_interception_detector import PassAndInterceptionDetector
-from tactical_view_converter import TacticalViewConverter
-from speed_and_distance_calculator import SpeedAndDistanceCalculator
-from pose_estimator import PoseEstimator
-from rule_violation_detector import DoubleDribbleDetector, TravelingDetector
-from drawers import (
+from personal.basketball_analysis.utils import read_video, save_video, get_video_fps
+from personal.basketball_analysis.trackers import PlayerTracker, BallTracker
+from personal.basketball_analysis.team_assigner import TeamAssigner
+from personal.basketball_analysis.court_keypoint_detector import CourtKeypointDetector
+from personal.basketball_analysis.ball_aquisition import BallAquisitionDetector
+from personal.basketball_analysis.pass_and_interception_detector import PassAndInterceptionDetector
+from personal.basketball_analysis.tactical_view_converter import TacticalViewConverter
+from personal.basketball_analysis.speed_and_distance_calculator import SpeedAndDistanceCalculator
+from personal.basketball_analysis.pose_estimator import PoseEstimator
+from personal.basketball_analysis.rule_violation_detector import DoubleDribbleDetector, TravelingDetector
+from personal.basketball_analysis.drawers import (
     PlayerTracksDrawer,
     BallTracksDrawer,
     CourtKeypointDrawer,
@@ -39,7 +39,7 @@ from drawers import (
     PoseDrawer,
     ViolationDrawer,
 )
-from configs import (
+from personal.basketball_analysis.configs import (
     PLAYER_CONF_THRESHOLD,
     BALL_CONF_THRESHOLD,
     COURT_KEYPOINT_CONF_THRESHOLD,
@@ -54,10 +54,10 @@ from configs import (
     PLAYER_MINIMUM_MATCHING_THRESHOLD,
     PLAYER_MINIMUM_CONSECUTIVE_FRAMES,
 )
-from game_report import build_game_report
+from personal.basketball_analysis.game_report import build_game_report
 
-from pipeline.progress import ProgressReporter
-from pipeline.model_resolution import (
+from personal.basketball_analysis.pipeline.progress import ProgressReporter
+from personal.basketball_analysis.pipeline.model_resolution import (
     resolve_player_model,
     resolve_ball_model,
     resolve_court_keypoint_model,

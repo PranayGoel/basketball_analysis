@@ -15,8 +15,8 @@ import os
 from datetime import datetime, timezone
 from unittest.mock import patch
 
-from app.db.models import Video
-from tests.test_utils import BackendTestCase
+from personal.basketball_analysis.webapp.backend.app.db.models import Video
+from personal.basketball_analysis.webapp.backend.tests.test_utils import BackendTestCase
 
 
 class TestNarrativeWithoutLlmCredentials(BackendTestCase):

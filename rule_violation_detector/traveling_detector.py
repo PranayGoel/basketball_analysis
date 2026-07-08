@@ -4,13 +4,13 @@ the package-level limitations this proxy is subject to.
 """
 import sys
 sys.path.append('../')
-from rule_violation_detector.config import (
+from personal.basketball_analysis.rule_violation_detector.config import (
     ANKLE_MIN_CONF,
     STEP_MIN_VERTICAL_VELOCITY_DELTA,
     LEGAL_STEP_COUNT_THRESHOLD,
     MIN_VIOLATION_FRAME_SPAN,
 )
-from rule_violation_detector.dribble_event_detector import detect_dribble_events
+from personal.basketball_analysis.rule_violation_detector.dribble_event_detector import detect_dribble_events
 
 LEFT_ANKLE_INDEX = 15
 RIGHT_ANKLE_INDEX = 16

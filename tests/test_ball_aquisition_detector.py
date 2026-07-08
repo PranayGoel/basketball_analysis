@@ -1,5 +1,5 @@
 import unittest
-from ball_aquisition.ball_aquisition_detector import BallAquisitionDetector
+from personal.basketball_analysis.ball_aquisition.ball_aquisition_detector import BallAquisitionDetector
 
 
 class TestPossessionStreakRegression(unittest.TestCase):

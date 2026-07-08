@@ -12,8 +12,8 @@ final DB writes.
 
 from arq.connections import RedisSettings
 
-from app.config import settings
-from app.worker.tasks import run_pipeline_job
+from personal.basketball_analysis.webapp.backend.app.config import settings
+from personal.basketball_analysis.webapp.backend.app.worker.tasks import run_pipeline_job
 
 
 class WorkerSettings:

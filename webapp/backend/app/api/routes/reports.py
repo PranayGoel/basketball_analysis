@@ -15,10 +15,10 @@ import os
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
-from app.db.models import Video, Violation
-from app.schemas.report import EventsResponse, NarrativeResponse, QARequest, QAResponse, ViolationEvent
-from app.services.llm import get_llm_client_or_503
+from personal.basketball_analysis.webapp.backend.app.api.deps import get_db
+from personal.basketball_analysis.webapp.backend.app.db.models import Video, Violation
+from personal.basketball_analysis.webapp.backend.app.schemas.report import EventsResponse, NarrativeResponse, QARequest, QAResponse, ViolationEvent
+from personal.basketball_analysis.webapp.backend.app.services.llm import get_llm_client_or_503
 
 router = APIRouter(prefix="/api", tags=["reports"])
 
@@ -55,7 +55,7 @@ def get_video_narrative(video_id: str, db: Session = Depends(get_db)):
 
     report = _load_report_or_404(video)
 
-    from game_qa import generate_game_narrative
+    from personal.basketball_analysis.game_qa import generate_game_narrative
 
     client, config = get_llm_client_or_503()
     narrative = generate_game_narrative(client, config["model"], report)
@@ -74,7 +74,7 @@ def ask_video_question(video_id: str, body: QARequest, db: Session = Depends(get
 
     report = _load_report_or_404(video)
 
-    from game_qa import answer_question
+    from personal.basketball_analysis.game_qa import answer_question
 
     client, config = get_llm_client_or_503()
     answer = answer_question(client, config["model"], report, body.question)

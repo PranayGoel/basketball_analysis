@@ -11,7 +11,7 @@ real usage volumes. See webapp README for the full rationale.
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
 
-from app.config import settings
+from personal.basketball_analysis.webapp.backend.app.config import settings
 
 
 class Base(DeclarativeBase):

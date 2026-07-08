@@ -1,5 +1,5 @@
 import unittest
-from rule_violation_detector.double_dribble_detector import DoubleDribbleDetector
+from personal.basketball_analysis.rule_violation_detector.double_dribble_detector import DoubleDribbleDetector
 
 
 WRIST_X, WRIST_Y = 0.0, 0.0

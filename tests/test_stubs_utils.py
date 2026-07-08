@@ -3,7 +3,7 @@ import shutil
 import tempfile
 import unittest
 
-from utils.stubs_utils import read_stub, save_stub
+from personal.basketball_analysis.utils.stubs_utils import read_stub, save_stub
 
 
 class TestSaveStub(unittest.TestCase):

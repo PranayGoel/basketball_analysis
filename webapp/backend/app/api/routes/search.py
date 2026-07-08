@@ -2,10 +2,10 @@
 
 from fastapi import APIRouter, Depends
 
-from app.api.deps import get_db
-from app.llm.library_qa import query_library
-from app.schemas.search import SearchRequest, SearchResponse
-from app.services.llm import get_llm_client_or_503
+from personal.basketball_analysis.webapp.backend.app.api.deps import get_db
+from personal.basketball_analysis.webapp.backend.app.llm.library_qa import query_library
+from personal.basketball_analysis.webapp.backend.app.schemas.search import SearchRequest, SearchResponse
+from personal.basketball_analysis.webapp.backend.app.services.llm import get_llm_client_or_503
 
 router = APIRouter(prefix="/api", tags=["search"])
 

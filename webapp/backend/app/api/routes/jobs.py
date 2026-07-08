@@ -13,10 +13,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
-from app.config import settings
-from app.db.models import Job
-from app.schemas.job import JobStatus
+from personal.basketball_analysis.webapp.backend.app.api.deps import get_db
+from personal.basketball_analysis.webapp.backend.app.config import settings
+from personal.basketball_analysis.webapp.backend.app.db.models import Job
+from personal.basketball_analysis.webapp.backend.app.schemas.job import JobStatus
 
 router = APIRouter(prefix="/api", tags=["jobs"])
 

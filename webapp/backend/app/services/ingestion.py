@@ -12,9 +12,9 @@ from typing import BinaryIO, Tuple
 
 from sqlalchemy.orm import Session
 
-from app.config import settings
-from app.db.models import Job, Video
-from app.services.storage import save_upload
+from personal.basketball_analysis.webapp.backend.app.config import settings
+from personal.basketball_analysis.webapp.backend.app.db.models import Job, Video
+from personal.basketball_analysis.webapp.backend.app.services.storage import save_upload
 
 
 async def enqueue_pipeline_job(job_id: str) -> None:

@@ -12,11 +12,11 @@ from fastapi.responses import Response, StreamingResponse
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
-from app.db.models import Video
-from app.schemas.video import UploadResponse, VideoDetail, VideoListResponse, VideoSummary
-from app.services.ingestion import ingest_upload
-from app.services.storage import delete_video_files
+from personal.basketball_analysis.webapp.backend.app.api.deps import get_db
+from personal.basketball_analysis.webapp.backend.app.db.models import Video
+from personal.basketball_analysis.webapp.backend.app.schemas.video import UploadResponse, VideoDetail, VideoListResponse, VideoSummary
+from personal.basketball_analysis.webapp.backend.app.services.ingestion import ingest_upload
+from personal.basketball_analysis.webapp.backend.app.services.storage import delete_video_files
 
 router = APIRouter(prefix="/api", tags=["videos"])
 

@@ -2,8 +2,8 @@ import unittest
 from unittest.mock import patch, MagicMock
 import numpy as np
 
-from pose_estimator.pose_estimator import PoseEstimator, NUM_COCO_KEYPOINTS
-from utils.stubs_utils import save_stub
+from personal.basketball_analysis.pose_estimator.pose_estimator import PoseEstimator, NUM_COCO_KEYPOINTS
+from personal.basketball_analysis.utils.stubs_utils import save_stub
 
 
 class FakeTensor:

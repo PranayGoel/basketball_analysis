@@ -1,8 +1,8 @@
 import argparse
 import time
 
-from pipeline import PipelineConfig, run_analysis
-from configs import (
+from personal.basketball_analysis.pipeline import PipelineConfig, run_analysis
+from personal.basketball_analysis.configs import (
     STUBS_DEFAULT_PATH,
     OUTPUT_VIDEO_PATH,
     DEVICE,

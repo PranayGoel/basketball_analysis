@@ -53,11 +53,11 @@ from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from utils import read_video, get_video_fps
-from trackers import PlayerTracker, BallTracker
-from team_assigner import TeamAssigner
-from team_assigner.team_assigner_legacy import LegacyTeamAssigner
-from configs import (
+from personal.basketball_analysis.utils import read_video, get_video_fps
+from personal.basketball_analysis.trackers import PlayerTracker, BallTracker
+from personal.basketball_analysis.team_assigner import TeamAssigner
+from personal.basketball_analysis.team_assigner.team_assigner_legacy import LegacyTeamAssigner
+from personal.basketball_analysis.configs import (
     PLAYER_DETECTOR_PATH,
     BALL_DETECTOR_PATH,
     PLAYER_CONF_THRESHOLD,

@@ -1,5 +1,5 @@
 import unittest
-from pass_and_interception_detector.pass_and_interception_detector import PassAndInterceptionDetector
+from personal.basketball_analysis.pass_and_interception_detector.pass_and_interception_detector import PassAndInterceptionDetector
 
 
 class TestPassAndInterceptionDetector(unittest.TestCase):

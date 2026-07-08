@@ -1,5 +1,5 @@
 import unittest
-from speed_and_distance_calculator.speed_and_distance_calculator import SpeedAndDistanceCalculator
+from personal.basketball_analysis.speed_and_distance_calculator.speed_and_distance_calculator import SpeedAndDistanceCalculator
 
 
 class TestSpeedAndDistanceCalculator(unittest.TestCase):

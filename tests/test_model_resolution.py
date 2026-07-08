@@ -3,8 +3,8 @@ import tempfile
 import unittest
 from unittest import mock
 
-from pipeline import model_resolution
-from pipeline.model_resolution import (
+from personal.basketball_analysis.pipeline import model_resolution
+from personal.basketball_analysis.pipeline.model_resolution import (
     resolve_player_model,
     resolve_ball_model,
     resolve_court_keypoint_model,
@@ -109,14 +109,14 @@ class TestDescribeResolution(unittest.TestCase):
         self.assertIn("court_keypoints", message)
 
     def test_fallback_resolution_includes_accuracy_warning(self):
-        from pipeline.model_resolution import ModelResolution
+        from personal.basketball_analysis.pipeline.model_resolution import ModelResolution
         fallback = ModelResolution(weights_path=COCO_FALLBACK_MODEL, class_name=COCO_SPORTS_BALL_CLASS, source="fallback")
         message = describe_resolution("ball", fallback)
         self.assertIn("fallback", message)
         self.assertIn("materially lower", message)
 
     def test_custom_resolution_has_no_accuracy_warning(self):
-        from pipeline.model_resolution import ModelResolution
+        from personal.basketball_analysis.pipeline.model_resolution import ModelResolution
         custom = ModelResolution(weights_path="models/ball_detector_model.pt", class_name="Ball", source="custom")
         message = describe_resolution("ball", custom)
         self.assertNotIn("materially lower", message)

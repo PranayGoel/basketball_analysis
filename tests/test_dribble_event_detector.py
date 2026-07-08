@@ -1,5 +1,5 @@
 import unittest
-from rule_violation_detector.dribble_event_detector import detect_dribble_events
+from personal.basketball_analysis.rule_violation_detector.dribble_event_detector import detect_dribble_events
 
 
 def _ball_track(cx, cy, half_size=5):

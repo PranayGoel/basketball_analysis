@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 
-from team_assigner.team_assigner import TeamAssigner
+from personal.basketball_analysis.team_assigner.team_assigner import TeamAssigner
 
 
 class TestDiscoverTeamColors(unittest.TestCase):

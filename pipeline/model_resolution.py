@@ -27,7 +27,7 @@ import os
 from dataclasses import dataclass
 from typing import Optional
 
-from configs import PLAYER_DETECTOR_PATH, BALL_DETECTOR_PATH, COURT_KEYPOINT_DETECTOR_PATH
+from personal.basketball_analysis.configs import PLAYER_DETECTOR_PATH, BALL_DETECTOR_PATH, COURT_KEYPOINT_DETECTOR_PATH
 
 COCO_FALLBACK_MODEL = 'yolo11n.pt'
 COCO_PERSON_CLASS = 'person'

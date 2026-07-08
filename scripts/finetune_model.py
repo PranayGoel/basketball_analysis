@@ -52,8 +52,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from dotenv import load_dotenv
 load_dotenv()
 
-from pipeline.core import resolve_device
-from configs import PLAYER_DETECTOR_PATH, BALL_DETECTOR_PATH, COURT_KEYPOINT_DETECTOR_PATH
+from personal.basketball_analysis.pipeline.core import resolve_device
+from personal.basketball_analysis.configs import PLAYER_DETECTOR_PATH, BALL_DETECTOR_PATH, COURT_KEYPOINT_DETECTOR_PATH
 
 # Per-model-type defaults, matching llm_client.py's PROVIDER_CONFIG shape: one
 # dict keyed by the discriminator, each value carrying everything type-specific.

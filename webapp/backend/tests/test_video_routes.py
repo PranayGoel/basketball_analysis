@@ -8,8 +8,8 @@ import os
 from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, patch
 
-from app.db.models import Video
-from tests.test_utils import BackendTestCase
+from personal.basketball_analysis.webapp.backend.app.db.models import Video
+from personal.basketball_analysis.webapp.backend.tests.test_utils import BackendTestCase
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 SAMPLE_VIDEO_PATH = os.path.join(REPO_ROOT, "input_videos", "video_1.mp4")

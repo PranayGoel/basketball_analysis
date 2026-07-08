@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from trackers.ball_tracker import BallTracker
+from personal.basketball_analysis.trackers.ball_tracker import BallTracker
 
 
 def make_tracker():

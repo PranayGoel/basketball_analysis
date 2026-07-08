@@ -9,7 +9,7 @@ provider is configured.
 
 from unittest.mock import patch
 
-from tests.test_utils import BackendTestCase
+from personal.basketball_analysis.webapp.backend.tests.test_utils import BackendTestCase
 
 
 class TestSearchWithoutLlmCredentials(BackendTestCase):

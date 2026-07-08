@@ -7,9 +7,9 @@ crash, has_violations stays False, no Violation rows).
 
 from datetime import datetime, timezone
 
-from app.db.models import GameEvent, Player, Video, Violation
-from app.services.report_indexer import index_report
-from tests.test_utils import BackendTestCase
+from personal.basketball_analysis.webapp.backend.app.db.models import GameEvent, Player, Video, Violation
+from personal.basketball_analysis.webapp.backend.app.services.report_indexer import index_report
+from personal.basketball_analysis.webapp.backend.tests.test_utils import BackendTestCase
 
 
 def _synthetic_report(include_violations=None):

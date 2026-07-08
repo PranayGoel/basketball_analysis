@@ -12,8 +12,8 @@ from typing import Any, Dict
 
 from sqlalchemy.orm import Session
 
-from app.db.models import GameEvent, Player, Video
-from app.db.models import Violation as ViolationModel
+from personal.basketball_analysis.webapp.backend.app.db.models import GameEvent, Player, Video
+from personal.basketball_analysis.webapp.backend.app.db.models import Violation as ViolationModel
 
 
 def index_report(db: Session, video_id: str, report: Dict[str, Any]) -> None:

@@ -3,8 +3,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api.routes import jobs, reports, search, videos
-from app.config import settings
+from personal.basketball_analysis.webapp.backend.app.api.routes import videos
+from personal.basketball_analysis.webapp.backend.app.api.routes import jobs, reports, search
+from personal.basketball_analysis.webapp.backend.app.config import settings
 
 
 def create_app() -> FastAPI:

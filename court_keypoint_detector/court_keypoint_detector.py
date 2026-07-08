@@ -2,7 +2,7 @@ from ultralytics import YOLO
 import supervision as sv
 import sys 
 sys.path.append('../')
-from utils import read_stub, save_stub
+from personal.basketball_analysis.utils import read_stub, save_stub
 
 
 class CourtKeypointDetector:

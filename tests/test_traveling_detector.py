@@ -1,5 +1,5 @@
 import unittest
-from rule_violation_detector.traveling_detector import TravelingDetector
+from personal.basketball_analysis.rule_violation_detector.traveling_detector import TravelingDetector
 
 
 ANKLE_X = 0.0
@@ -81,7 +81,7 @@ class TestTravelingDetector(unittest.TestCase):
         # Two steps, a dribble (legally resets the step allowance), then two
         # more steps -- each leg stays <= LEGAL_STEP_COUNT_THRESHOLD=3, so no
         # violation should fire for either leg.
-        from tests.test_dribble_event_detector import _ball_track, _pose_with_wrist
+        from personal.basketball_analysis.tests.test_dribble_event_detector import _ball_track, _pose_with_wrist
 
         leg_1_ankle_ys = _footstep_ankle_ys(base=0) + _footstep_ankle_ys(base=2)  # 8 frames, 2 plants
         dribble_ball_positions = [(d, 0) for d in (5, 20, 60, 90, 60, 20, 5, 5, 5, 5)]  # 10 frames

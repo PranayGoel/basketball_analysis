@@ -9,8 +9,8 @@ docstring in rule_violation_detector/__init__.py for the broader limitations.
 """
 import sys
 sys.path.append('../')
-from utils.bbox_utils import measure_distance, get_center_of_bbox
-from rule_violation_detector.config import (
+from personal.basketball_analysis.utils.bbox_utils import measure_distance, get_center_of_bbox
+from personal.basketball_analysis.rule_violation_detector.config import (
     DRIBBLE_MIN_AMPLITUDE_PX,
     DRIBBLE_MIN_CYCLE_FRAMES,
     DRIBBLE_MAX_CYCLE_FRAMES,

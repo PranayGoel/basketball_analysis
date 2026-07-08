@@ -11,11 +11,11 @@ traceback leaking to the client.
 
 from fastapi import HTTPException
 
-from app.config import settings
+from personal.basketball_analysis.webapp.backend.app.config import settings
 
 
 def get_llm_client_or_503():
-    from llm_client import get_client
+    from personal.basketball_analysis.llm_client import get_client
 
     try:
         return get_client(

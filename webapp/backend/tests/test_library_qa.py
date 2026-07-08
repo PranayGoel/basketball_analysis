@@ -12,8 +12,8 @@ import json
 import os
 from datetime import datetime, timezone
 
-from app.db.models import Player, Video
-from app.llm.library_qa import (
+from personal.basketball_analysis.webapp.backend.app.db.models import Player, Video
+from personal.basketball_analysis.webapp.backend.app.llm.library_qa import (
     compare_videos,
     find_closest_possession_split,
     find_videos_by_min_distance,
@@ -21,7 +21,7 @@ from app.llm.library_qa import (
     query_library,
     rank_videos_by_stat,
 )
-from tests.test_utils import BackendTestCase
+from personal.basketball_analysis.webapp.backend.tests.test_utils import BackendTestCase
 
 # The repo root's tests/fakes.py holds a stdlib-only duck-typed fake OpenAI-SDK
 # client shape that this reuses directly rather than duplicating it. It can't

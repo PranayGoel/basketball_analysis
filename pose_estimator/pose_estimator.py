@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import sys
 sys.path.append('../')
-from utils import read_stub, save_stub
+from personal.basketball_analysis.utils import read_stub, save_stub
 
 NUM_COCO_KEYPOINTS = 17
 DEFAULT_BBOX_PAD_FRAC = 0.15  # pad crop by 15% of max(bbox_w, bbox_h) on each side

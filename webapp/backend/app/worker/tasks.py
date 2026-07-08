@@ -30,11 +30,11 @@ from typing import Any, Dict, Optional
 
 from sqlalchemy.orm import Session
 
-from app.config import settings
-from app.db.base import SessionLocal
-from app.db.models import Job, Video
-from app.services.report_indexer import index_report
-from app.services.storage import get_paths
+from personal.basketball_analysis.webapp.backend.app.config import settings
+from personal.basketball_analysis.webapp.backend.app.db.base import SessionLocal
+from personal.basketball_analysis.webapp.backend.app.db.models import Job, Video
+from personal.basketball_analysis.webapp.backend.app.services.report_indexer import index_report
+from personal.basketball_analysis.webapp.backend.app.services.storage import get_paths
 
 PROGRESS_CHANNEL_TEMPLATE = "job:{job_id}:progress"
 
@@ -112,7 +112,7 @@ def _run_pipeline_sync(job_id: str, video_id: str, upload_path: str) -> Dict[str
     report dict. Raises on failure -- the caller (run_pipeline_job) is
     responsible for catching and marking the job/video failed.
     """
-    from pipeline import PipelineConfig, run_analysis
+    from personal.basketball_analysis.pipeline import PipelineConfig, run_analysis
 
     paths = get_paths(video_id)
 

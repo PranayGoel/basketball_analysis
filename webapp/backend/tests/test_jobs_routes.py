@@ -12,8 +12,8 @@ infrastructure.
 import socket
 from datetime import datetime, timezone
 
-from app.db.models import Job, Video
-from tests.test_utils import BackendTestCase
+from personal.basketball_analysis.webapp.backend.app.db.models import Job, Video
+from personal.basketball_analysis.webapp.backend.tests.test_utils import BackendTestCase
 
 
 def _redis_reachable(host="localhost", port=6379, timeout=0.2):

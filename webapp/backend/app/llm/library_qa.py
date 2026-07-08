@@ -23,7 +23,7 @@ from typing import Any, Dict, List, Optional
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.db.models import Player, Video, Violation
+from personal.basketball_analysis.webapp.backend.app.db.models import Player, Video, Violation
 
 # ---------------------------------------------------------------------------
 # Tool functions -- pure(ish: read-only DB queries), deterministic, no LLM

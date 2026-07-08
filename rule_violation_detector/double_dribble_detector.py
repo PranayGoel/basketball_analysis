@@ -4,13 +4,13 @@ for the package-level limitations this proxy is subject to.
 """
 import sys
 sys.path.append('../')
-from utils.bbox_utils import measure_distance, get_center_of_bbox
-from rule_violation_detector.config import (
+from personal.basketball_analysis.utils.bbox_utils import measure_distance, get_center_of_bbox
+from personal.basketball_analysis.rule_violation_detector.config import (
     PICKUP_PROXIMITY_PX,
     PICKUP_MIN_CONSECUTIVE_FRAMES,
     WRIST_MIN_CONF,
 )
-from rule_violation_detector.dribble_event_detector import (
+from personal.basketball_analysis.rule_violation_detector.dribble_event_detector import (
     detect_dribble_events,
     LEFT_WRIST_INDEX,
     RIGHT_WRIST_INDEX,

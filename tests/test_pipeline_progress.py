@@ -1,6 +1,6 @@
 import unittest
 
-from pipeline.progress import ProgressReporter, STAGE_NAMES
+from personal.basketball_analysis.pipeline.progress import ProgressReporter, STAGE_NAMES
 
 
 class TestProgressReporter(unittest.TestCase):

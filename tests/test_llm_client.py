@@ -2,8 +2,8 @@ import os
 import unittest
 from unittest import mock
 
-from llm_client import resolve_provider_config, UnknownProviderError, MissingCredentialError, call_chat
-from tests.fakes import FakeClient, FakeResponse, FakeMessage
+from personal.basketball_analysis.llm_client import resolve_provider_config, UnknownProviderError, MissingCredentialError, call_chat
+from personal.basketball_analysis.tests.fakes import FakeClient, FakeResponse, FakeMessage
 
 
 class TestResolveProviderConfig(unittest.TestCase):

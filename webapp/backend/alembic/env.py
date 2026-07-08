@@ -17,9 +17,9 @@ from sqlalchemy import engine_from_config, pool
 # doesn't depend on cwd matching alembic.ini's location).
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.config import settings  # noqa: E402
-from app.db.base import Base  # noqa: E402
-from app.db import models  # noqa: E402,F401 -- import registers all models on Base.metadata
+from personal.basketball_analysis.webapp.backend.app.config import settings  # noqa: E402
+from personal.basketball_analysis.webapp.backend.app.db.base import Base  # noqa: E402
+from personal.basketball_analysis.webapp.backend.app.db import models  # noqa: E402,F401 -- import registers all models on Base.metadata
 
 config = context.config
 

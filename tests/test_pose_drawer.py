@@ -1,8 +1,8 @@
 import unittest
 import numpy as np
 
-from drawers.pose_drawer import PoseDrawer, MIN_KEYPOINT_CONF_TO_DRAW
-from pose_estimator.pose_estimator import NUM_COCO_KEYPOINTS
+from personal.basketball_analysis.drawers.pose_drawer import PoseDrawer, MIN_KEYPOINT_CONF_TO_DRAW
+from personal.basketball_analysis.pose_estimator.pose_estimator import NUM_COCO_KEYPOINTS
 
 
 def make_keypoints(conf):

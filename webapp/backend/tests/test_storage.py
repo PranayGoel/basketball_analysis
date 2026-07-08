@@ -11,7 +11,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from app.services import storage
+from personal.basketball_analysis.webapp.backend.app.services import storage
 
 
 class TestGetPaths(unittest.TestCase):
