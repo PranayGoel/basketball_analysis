@@ -70,8 +70,8 @@ async def stream_job_progress(job_id: str, db: Session = Depends(get_db)):
         redis_client = aioredis.from_url(settings.REDIS_URL)
         pubsub = redis_client.pubsub()
         channel = PROGRESS_CHANNEL_TEMPLATE.format(job_id=job_id)
-        await pubsub.subscribe(channel)
         try:
+            await pubsub.subscribe(channel)
             loop = asyncio.get_event_loop()
             deadline = loop.time() + _SSE_TIMEOUT_SECONDS
             while loop.time() < deadline:

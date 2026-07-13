@@ -127,8 +127,8 @@ def generate_thumbnail(video_id: str, source_video_path: str, seek_seconds: floa
             return None
 
         paths = get_paths(video_id)
-        cv2.imwrite(paths.thumbnail_path, frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
-        return paths.thumbnail_path
+        ok = cv2.imwrite(paths.thumbnail_path, frame, [cv2.IMWRITE_JPEG_QUALITY, 80])
+        return paths.thumbnail_path if ok else None
     finally:
         cap.release()
 

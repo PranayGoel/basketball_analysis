@@ -94,15 +94,21 @@ def _on_progress_sync(job_id: str, stage_name: str, stage_index: int, total_stag
     finally:
         db.close()
 
-    _publish_progress(
-        job_id,
-        {
-            "stage": stage_name,
-            "stage_index": stage_index,
-            "total_stages": total_stages,
-            "status": status,
-        },
-    )
+    # Progress publishing is best-effort: a Redis hiccup must never abort the
+    # pipeline. Swallow any connection/publish error and let the DB stage update
+    # above serve as the durable poll-fallback state instead.
+    try:
+        _publish_progress(
+            job_id,
+            {
+                "stage": stage_name,
+                "stage_index": stage_index,
+                "total_stages": total_stages,
+                "status": status,
+            },
+        )
+    except Exception:
+        pass
 
 
 def _run_pipeline_sync(job_id: str, video_id: str, upload_path: str) -> Dict[str, Any]:
@@ -144,7 +150,14 @@ def _finalize_success_sync(job_id: str, video_id: str, report: Dict[str, Any]) -
         video.thumbnail_path = thumbnail
 
         db.commit()
-        index_report(db, video_id, report)
+        try:
+            index_report(db, video_id, report)
+        except Exception:
+            import logging
+            logging.getLogger(__name__).exception(
+                "Report indexing failed for video %s; analytics will be empty", video_id
+            )
+            db.rollback()
     finally:
         db.close()
 
@@ -180,8 +193,27 @@ async def run_pipeline_job(ctx, job_id: str) -> None:
     except Exception as exc:  # noqa: BLE001 -- any pipeline failure must be recorded, not swallowed
         error_message = str(exc)
         await asyncio.to_thread(_finalize_failure_sync, job_id, error_message)
-        _publish_progress(job_id, {"status": "failed", "error_message": error_message, "terminal": True})
+        try:
+            await asyncio.to_thread(
+                _publish_progress,
+                job_id,
+                {"status": "failed", "error_message": error_message, "terminal": True},
+            )
+        except Exception:
+            pass
         return
 
-    await asyncio.to_thread(_finalize_success_sync, job_id, video_id, report)
-    _publish_progress(job_id, {"stage": "report", "status": "done", "terminal": True})
+    try:
+        await asyncio.to_thread(_finalize_success_sync, job_id, video_id, report)
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception("Finalization failed for job %s", job_id)
+
+    try:
+        await asyncio.to_thread(
+            _publish_progress,
+            job_id,
+            {"stage": "report", "status": "done", "terminal": True},
+        )
+    except Exception:
+        pass

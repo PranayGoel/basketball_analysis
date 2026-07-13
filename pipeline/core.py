@@ -232,7 +232,12 @@ def run_analysis(config, progress_callback=None):
     tactical_view_converter = None
     with reporter.stage("tactical_view"):
         if court_keypoints_per_frame is not None:
-            tactical_view_converter = TacticalViewConverter(court_image_path="./images/basketball_court.png")
+            tactical_view_converter = TacticalViewConverter(
+                court_image_path=os.path.join(
+                    os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+                    "images", "basketball_court.png",
+                )
+            )
             court_keypoints_per_frame = tactical_view_converter.validate_keypoints(court_keypoints_per_frame)
             tactical_player_positions = tactical_view_converter.transform_players_to_tactical_view(
                 court_keypoints_per_frame, player_tracks

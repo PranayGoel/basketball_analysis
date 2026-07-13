@@ -23,6 +23,15 @@ RUN printf 'server {\n\
     listen 80;\n\
     root /usr/share/nginx/html;\n\
     index index.html;\n\
+    # Proxy /api/* to the backend service (docker-compose same-origin mode).\n\
+    # When VITE_API_URL is empty the SPA sends all API calls to /api/;\n\
+    # nginx forwards them here instead of serving index.html.\n\
+    location /api/ {\n\
+        proxy_pass http://backend:8000;\n\
+        proxy_set_header Host $host;\n\
+        proxy_set_header X-Real-IP $remote_addr;\n\
+        proxy_read_timeout 1800s;\n\
+    }\n\
     location / {\n\
         try_files $uri $uri/ /index.html;\n\
     }\n\

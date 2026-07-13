@@ -68,10 +68,19 @@ async def ingest_upload(db: Session, filename: str, file_obj: BinaryIO) -> Tuple
     )
     db.add(job)
 
+    # Flush to assign IDs without committing — we only commit after the arq
+    # job is successfully enqueued. If Redis is down, we roll back and the
+    # client gets a clean 503 with no orphaned "queued" rows.
+    db.flush()
+
+    try:
+        await enqueue_pipeline_job(job_id)
+    except Exception:
+        db.rollback()
+        raise
+
     db.commit()
     db.refresh(video)
     db.refresh(job)
-
-    await enqueue_pipeline_job(job_id)
 
     return video, job

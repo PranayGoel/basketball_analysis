@@ -6,7 +6,10 @@
  * origin (e.g. https://api.courtvision.app) so the frontend can be deployed
  * separately (e.g. Vercel) from the backend (e.g. Railway / Render / Fly.io).
  */
-const API_BASE = `${import.meta.env.VITE_API_URL ?? ""}/api`;
+// Strip any trailing slash from VITE_API_URL so setting it to e.g.
+// "https://api.courtvision.app/" doesn't produce double slashes, and
+// setting it to ".../api" doesn't produce a doubled "/api/api" prefix.
+const API_BASE = `${(import.meta.env.VITE_API_URL ?? "").replace(/\/+$/, "")}/api`;
 
 export class ApiError extends Error {
   readonly status: number;

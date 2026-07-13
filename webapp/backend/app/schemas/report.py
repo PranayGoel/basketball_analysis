@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, List
 
-from pydantic import BaseModel, RootModel
+from pydantic import BaseModel, Field, RootModel
 
 
 class NarrativeResponse(BaseModel):
@@ -11,7 +11,7 @@ class NarrativeResponse(BaseModel):
 
 
 class QARequest(BaseModel):
-    question: str
+    question: str = Field(..., max_length=2000)
 
 
 class QAResponse(BaseModel):
