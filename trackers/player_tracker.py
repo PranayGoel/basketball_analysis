@@ -1,7 +1,5 @@
 from ultralytics import YOLO
 import supervision as sv
-import sys 
-sys.path.append('../')
 from personal.basketball_analysis.utils import read_stub, save_stub
 
 class PlayerTracker:

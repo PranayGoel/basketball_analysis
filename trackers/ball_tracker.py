@@ -2,8 +2,6 @@ from ultralytics import YOLO
 import supervision as sv
 import numpy as np
 import pandas as pd
-import sys
-sys.path.append('../')
 from personal.basketball_analysis.utils import read_stub, save_stub
 from personal.basketball_analysis.trackers.kalman_ball_tracker import ConstantVelocityKalmanFilter2D
 

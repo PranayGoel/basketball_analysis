@@ -28,7 +28,7 @@ class TestResolvePlayerModel(unittest.TestCase):
         self._env_patch.stop()
 
     def test_falls_back_to_coco_when_no_custom_weights_and_no_override(self):
-        with mock.patch("pipeline.model_resolution.PLAYER_DETECTOR_PATH", "/nonexistent/player_detector.pt"):
+        with mock.patch("personal.basketball_analysis.pipeline.model_resolution.PLAYER_DETECTOR_PATH", "/nonexistent/player_detector.pt"):
             resolution = resolve_player_model()
         self.assertEqual(resolution.source, "fallback")
         self.assertEqual(resolution.weights_path, COCO_FALLBACK_MODEL)
@@ -36,7 +36,7 @@ class TestResolvePlayerModel(unittest.TestCase):
 
     def test_prefers_custom_weights_when_present(self):
         with tempfile.NamedTemporaryFile(suffix=".pt") as tmp_weights:
-            with mock.patch("pipeline.model_resolution.PLAYER_DETECTOR_PATH", tmp_weights.name):
+            with mock.patch("personal.basketball_analysis.pipeline.model_resolution.PLAYER_DETECTOR_PATH", tmp_weights.name):
                 resolution = resolve_player_model()
         self.assertEqual(resolution.source, "custom")
         self.assertEqual(resolution.class_name, "Player")
@@ -45,7 +45,7 @@ class TestResolvePlayerModel(unittest.TestCase):
         with tempfile.NamedTemporaryFile(suffix=".pt") as tmp_weights:
             os.environ[model_resolution.PLAYER_OVERRIDE_ENV_VAR] = "/some/override/path.pt"
             try:
-                with mock.patch("pipeline.model_resolution.PLAYER_DETECTOR_PATH", tmp_weights.name):
+                with mock.patch("personal.basketball_analysis.pipeline.model_resolution.PLAYER_DETECTOR_PATH", tmp_weights.name):
                     resolution = resolve_player_model()
             finally:
                 os.environ.pop(model_resolution.PLAYER_OVERRIDE_ENV_VAR, None)
@@ -59,7 +59,7 @@ class TestResolveBallModel(unittest.TestCase):
         os.environ.pop(model_resolution.BALL_OVERRIDE_ENV_VAR, None)
 
     def test_falls_back_to_coco_sports_ball_when_no_custom_weights(self):
-        with mock.patch("pipeline.model_resolution.BALL_DETECTOR_PATH", "/nonexistent/ball_detector.pt"):
+        with mock.patch("personal.basketball_analysis.pipeline.model_resolution.BALL_DETECTOR_PATH", "/nonexistent/ball_detector.pt"):
             resolution = resolve_ball_model()
         self.assertEqual(resolution.source, "fallback")
         self.assertEqual(resolution.weights_path, COCO_FALLBACK_MODEL)
@@ -67,7 +67,7 @@ class TestResolveBallModel(unittest.TestCase):
 
     def test_prefers_custom_weights_when_present(self):
         with tempfile.NamedTemporaryFile(suffix=".pt") as tmp_weights:
-            with mock.patch("pipeline.model_resolution.BALL_DETECTOR_PATH", tmp_weights.name):
+            with mock.patch("personal.basketball_analysis.pipeline.model_resolution.BALL_DETECTOR_PATH", tmp_weights.name):
                 resolution = resolve_ball_model()
         self.assertEqual(resolution.source, "custom")
         self.assertEqual(resolution.class_name, "Ball")
@@ -79,13 +79,13 @@ class TestResolveCourtKeypointModel(unittest.TestCase):
 
     def test_returns_none_when_no_custom_weights_and_no_override(self):
         # The key difference from player/ball: no fallback tier exists at all.
-        with mock.patch("pipeline.model_resolution.COURT_KEYPOINT_DETECTOR_PATH", "/nonexistent/court.pt"):
+        with mock.patch("personal.basketball_analysis.pipeline.model_resolution.COURT_KEYPOINT_DETECTOR_PATH", "/nonexistent/court.pt"):
             resolution = resolve_court_keypoint_model()
         self.assertIsNone(resolution)
 
     def test_prefers_custom_weights_when_present(self):
         with tempfile.NamedTemporaryFile(suffix=".pt") as tmp_weights:
-            with mock.patch("pipeline.model_resolution.COURT_KEYPOINT_DETECTOR_PATH", tmp_weights.name):
+            with mock.patch("personal.basketball_analysis.pipeline.model_resolution.COURT_KEYPOINT_DETECTOR_PATH", tmp_weights.name):
                 resolution = resolve_court_keypoint_model()
         self.assertIsNotNone(resolution)
         self.assertEqual(resolution.source, "custom")
@@ -93,7 +93,7 @@ class TestResolveCourtKeypointModel(unittest.TestCase):
     def test_env_override_wins_even_without_custom_weights(self):
         os.environ[model_resolution.COURT_KEYPOINT_OVERRIDE_ENV_VAR] = "/some/override/court.pt"
         try:
-            with mock.patch("pipeline.model_resolution.COURT_KEYPOINT_DETECTOR_PATH", "/nonexistent/court.pt"):
+            with mock.patch("personal.basketball_analysis.pipeline.model_resolution.COURT_KEYPOINT_DETECTOR_PATH", "/nonexistent/court.pt"):
                 resolution = resolve_court_keypoint_model()
         finally:
             os.environ.pop(model_resolution.COURT_KEYPOINT_OVERRIDE_ENV_VAR, None)

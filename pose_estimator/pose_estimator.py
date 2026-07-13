@@ -1,6 +1,4 @@
 from ultralytics import YOLO
-import sys
-sys.path.append('../')
 from personal.basketball_analysis.utils import read_stub, save_stub
 
 NUM_COCO_KEYPOINTS = 17

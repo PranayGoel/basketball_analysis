@@ -225,7 +225,7 @@ class TestTravelingDetector(unittest.TestCase):
         pose_tracks = [{1: _pose_with_ankle_y(y)} for y in ankle_ys]
 
         with mock.patch(
-            "rule_violation_detector.traveling_detector.MIN_VIOLATION_FRAME_SPAN",
+            "personal.basketball_analysis.rule_violation_detector.traveling_detector.MIN_VIOLATION_FRAME_SPAN",
             len(ankle_ys) + 1,  # larger than this fixture's actual span -- must suppress
         ):
             violations = self._run(possessor_ids, pose_tracks)

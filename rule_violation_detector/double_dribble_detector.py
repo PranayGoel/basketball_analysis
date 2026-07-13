@@ -2,8 +2,6 @@
 Heuristic double-dribble detector -- see rule_violation_detector/__init__.py
 for the package-level limitations this proxy is subject to.
 """
-import sys
-sys.path.append('../')
 from personal.basketball_analysis.utils.bbox_utils import measure_distance, get_center_of_bbox
 from personal.basketball_analysis.rule_violation_detector.config import (
     PICKUP_PROXIMITY_PX,
