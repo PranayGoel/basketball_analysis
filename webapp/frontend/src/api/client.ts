@@ -1,11 +1,12 @@
 /**
  * Thin fetch wrapper shared by every api/* module.
  *
- * Base URL is always "/api" -- in dev this is proxied to the FastAPI
- * backend by vite.config.ts, and in production it's expected to be served
- * from the same origin (or reverse-proxied identically) as the backend.
+ * In dev, VITE_API_URL is unset and the Vite proxy (vite.config.ts) forwards
+ * /api/* to localhost:8000. In production, set VITE_API_URL to the backend
+ * origin (e.g. https://api.courtvision.app) so the frontend can be deployed
+ * separately (e.g. Vercel) from the backend (e.g. Railway / Render / Fly.io).
  */
-const API_BASE = "/api";
+const API_BASE = `${import.meta.env.VITE_API_URL ?? ""}/api`;
 
 export class ApiError extends Error {
   readonly status: number;

@@ -34,7 +34,7 @@ from personal.basketball_analysis.webapp.backend.app.config import settings
 from personal.basketball_analysis.webapp.backend.app.db.base import SessionLocal
 from personal.basketball_analysis.webapp.backend.app.db.models import Job, Video
 from personal.basketball_analysis.webapp.backend.app.services.report_indexer import index_report
-from personal.basketball_analysis.webapp.backend.app.services.storage import get_paths
+from personal.basketball_analysis.webapp.backend.app.services.storage import generate_thumbnail, get_paths
 
 PROGRESS_CHANNEL_TEMPLATE = "job:{job_id}:progress"
 
@@ -138,6 +138,11 @@ def _finalize_success_sync(job_id: str, video_id: str, report: Dict[str, Any]) -
         video.status = "done"
         video.output_path = paths.output_path
         video.report_json_path = paths.report_path if os.path.isfile(paths.report_path) else None
+
+        # Generate a thumbnail from the annotated output video (non-fatal if it fails).
+        thumbnail = generate_thumbnail(video_id, paths.output_path)
+        video.thumbnail_path = thumbnail
+
         db.commit()
         index_report(db, video_id, report)
     finally:

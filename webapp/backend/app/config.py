@@ -54,6 +54,10 @@ class Settings(BaseSettings):
     LLM_MODEL: Optional[str] = None
     LLM_BASE_URL: Optional[str] = None
 
+    # Maximum size in MB accepted for video uploads. Requests exceeding this
+    # limit are rejected with 413 before any bytes are written to disk.
+    MAX_UPLOAD_SIZE_MB: int = 500
+
     @property
     def database_url(self) -> str:
         if self.DATABASE_URL:
@@ -72,6 +76,10 @@ class Settings(BaseSettings):
     @property
     def reports_dir(self) -> str:
         return os.path.join(self.DATA_DIR, "reports")
+
+    @property
+    def thumbnails_dir(self) -> str:
+        return os.path.join(self.DATA_DIR, "thumbnails")
 
     @property
     def cors_origins_list(self):

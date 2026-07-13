@@ -13,6 +13,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from personal.basketball_analysis.webapp.backend.app.api.deps import get_db
+from personal.basketball_analysis.webapp.backend.app.config import settings
 from personal.basketball_analysis.webapp.backend.app.db.models import Video
 from personal.basketball_analysis.webapp.backend.app.schemas.video import UploadResponse, VideoDetail, VideoListResponse, VideoSummary
 from personal.basketball_analysis.webapp.backend.app.services.ingestion import ingest_upload
@@ -31,6 +32,15 @@ _CHUNK_SIZE = 1024 * 1024  # 1 MiB read chunks for the Range stream
 
 @router.post("/videos", response_model=UploadResponse, status_code=201)
 async def upload_video(file: UploadFile, db: Session = Depends(get_db)):
+    max_bytes = settings.MAX_UPLOAD_SIZE_MB * 1024 * 1024
+    data = await file.read(max_bytes + 1)
+    if len(data) > max_bytes:
+        raise HTTPException(
+            status_code=413,
+            detail=f"File exceeds the {settings.MAX_UPLOAD_SIZE_MB} MB upload limit.",
+        )
+    import io
+    file.file = io.BytesIO(data)
     video, job = await ingest_upload(db, file.filename or "upload.mp4", file.file)
     return UploadResponse(video_id=video.id, job_id=job.id, status=video.status)
 
