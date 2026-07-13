@@ -38,6 +38,7 @@ services:
       - ./models:/workspace/personal/basketball_analysis/models:ro
     environment:
       REDIS_URL: redis://redis:6379
+      PYTHONPATH: /workspace
       # Expand CORS to the frontend's real URL in production.
       CORS_ORIGINS: "http://localhost:5173,http://localhost:80"
       # Uncomment and set for LLM features:
@@ -62,6 +63,7 @@ services:
       - ./models:/workspace/personal/basketball_analysis/models:ro
     environment:
       REDIS_URL: redis://redis:6379
+      PYTHONPATH: /workspace
     env_file:
       - path: ./webapp/.env
         required: false

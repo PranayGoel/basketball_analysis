@@ -29,6 +29,11 @@ RUN pip install --no-cache-dir -r /tmp/backend-requirements.txt
 # ── Layer 3: place the repo at the path the import namespace expects
 COPY . /workspace/personal/basketball_analysis/
 
+# Add /workspace to PYTHONPATH so that `personal.basketball_analysis.*`
+# imports resolve: Python finds personal/ at /workspace/personal/,
+# then personal/basketball_analysis/ at the repo root.
+ENV PYTHONPATH=/workspace
+
 WORKDIR /workspace/personal/basketball_analysis/webapp/backend
 
 EXPOSE 8000
