@@ -46,7 +46,7 @@ class TestNarrativeWithoutLlmCredentials(BackendTestCase):
     def test_narrative_returns_503_not_500_when_no_llm_key_configured(self):
         self._insert_done_video_with_report()
 
-        with patch("app.services.llm.settings") as mock_settings:
+        with patch("personal.basketball_analysis.webapp.backend.app.services.llm.settings") as mock_settings:
             mock_settings.LLM_PROVIDER = "openai"
             mock_settings.LLM_API_KEY = None
             mock_settings.LLM_MODEL = None
@@ -60,7 +60,7 @@ class TestNarrativeWithoutLlmCredentials(BackendTestCase):
     def test_qa_returns_503_not_500_when_no_llm_key_configured(self):
         self._insert_done_video_with_report()
 
-        with patch("app.services.llm.settings") as mock_settings:
+        with patch("personal.basketball_analysis.webapp.backend.app.services.llm.settings") as mock_settings:
             mock_settings.LLM_PROVIDER = "openai"
             mock_settings.LLM_API_KEY = None
             mock_settings.LLM_MODEL = None

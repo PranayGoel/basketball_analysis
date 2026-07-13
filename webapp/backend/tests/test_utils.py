@@ -59,7 +59,7 @@ class BackendTestCase(unittest.TestCase):
         app.dependency_overrides[get_db] = override_get_db
         self.client = TestClient(app)
 
-        self._storage_settings_patch = patch("app.services.storage.settings")
+        self._storage_settings_patch = patch("personal.basketball_analysis.webapp.backend.app.services.storage.settings")
         mock_settings = self._storage_settings_patch.start()
         mock_settings.uploads_dir = os.path.join(self.tmp_dir, "uploads")
         mock_settings.outputs_dir = os.path.join(self.tmp_dir, "outputs")
