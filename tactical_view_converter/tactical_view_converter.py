@@ -1,13 +1,8 @@
-import os
-import sys
-import pathlib
 import numpy as np
 import cv2
 from copy import deepcopy
 from .homography import Homography
 
-folder_path = pathlib.Path(__file__).parent.resolve()
-sys.path.append(os.path.join(folder_path,"../"))
 from personal.basketball_analysis.utils import get_foot_position,measure_distance
 
 class TacticalViewConverter:

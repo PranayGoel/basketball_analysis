@@ -16,7 +16,7 @@ SAMPLE_VIDEO_PATH = os.path.join(REPO_ROOT, "input_videos", "video_1.mp4")
 
 
 class TestUploadVideo(BackendTestCase):
-    @patch("app.services.ingestion.enqueue_pipeline_job", new_callable=AsyncMock)
+    @patch("personal.basketball_analysis.webapp.backend.app.services.ingestion.enqueue_pipeline_job", new_callable=AsyncMock)
     def test_upload_creates_video_and_job_rows(self, mock_enqueue):
         with open(SAMPLE_VIDEO_PATH, "rb") as f:
             response = self.client.post(
@@ -42,7 +42,7 @@ class TestUploadVideo(BackendTestCase):
 
         mock_enqueue.assert_awaited_once_with(body["job_id"])
 
-    @patch("app.services.ingestion.enqueue_pipeline_job", new_callable=AsyncMock)
+    @patch("personal.basketball_analysis.webapp.backend.app.services.ingestion.enqueue_pipeline_job", new_callable=AsyncMock)
     def test_upload_does_not_require_real_redis(self, mock_enqueue):
         # If this test passes without a running Redis/arq worker, the mock is
         # doing its job -- the whole point of patching enqueue_pipeline_job.

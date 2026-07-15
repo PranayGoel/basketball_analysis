@@ -1,0 +1,87 @@
+# docker-compose for the full CourtVision stack.
+# Run from the REPO ROOT:  docker compose -f webapp/docker-compose.yml up --build
+#
+# Services:
+#   redis    — job queue + SSE pub/sub
+#   backend  — FastAPI API server (uvicorn)
+#   worker   — arq background worker (runs the CV pipeline)
+#   frontend — React SPA via nginx
+#
+# For production, replace the SQLite default with a real DATABASE_URL
+# (e.g. postgres://user:pass@host:5432/courtvision) and use a managed
+# Redis (Upstash, Railway, Render) instead of the local redis service.
+
+services:
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: webapp/backend/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persistent data: uploads, outputs, reports, thumbnails, SQLite DB.
+      # Replace with a named volume or cloud storage mount in production.
+      - ./webapp/data:/workspace/personal/basketball_analysis/webapp/backend/data
+      # YOLO model weights (read-only inside the container).
+      - ./models:/workspace/personal/basketball_analysis/models:ro
+    environment:
+      REDIS_URL: redis://redis:6379
+      PYTHONPATH: /workspace
+      # Expand CORS to the frontend's real URL in production.
+      CORS_ORIGINS: "http://localhost:5173,http://localhost:80"
+      # Uncomment and set for LLM features:
+      # LLM_PROVIDER: openrouter
+      # LLM_API_KEY: sk-or-...
+    env_file:
+      - path: ./webapp/.env
+        required: false   # fallback to environment: block above if .env is absent
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: webapp/backend/Dockerfile
+    # Override the default uvicorn CMD with the arq worker.
+    command: arq app.worker.arq_settings.WorkerSettings
+    restart: unless-stopped
+    volumes:
+      - ./webapp/data:/workspace/personal/basketball_analysis/webapp/backend/data
+      - ./models:/workspace/personal/basketball_analysis/models:ro
+    environment:
+      REDIS_URL: redis://redis:6379
+      PYTHONPATH: /workspace
+    env_file:
+      - path: ./webapp/.env
+        required: false
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./webapp/frontend
+      dockerfile: Dockerfile
+      args:
+        # Point the frontend at the backend.  Change to the real backend URL
+        # when the two services are on different hosts (e.g. Railway backend +
+        # Vercel frontend).
+        VITE_API_URL: ""  # empty = same origin (nginx reverse-proxy)
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend

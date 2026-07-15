@@ -2,8 +2,6 @@
 Heuristic traveling detector -- see rule_violation_detector/__init__.py for
 the package-level limitations this proxy is subject to.
 """
-import sys
-sys.path.append('../')
 from personal.basketball_analysis.rule_violation_detector.config import (
     ANKLE_MIN_CONF,
     STEP_MIN_VERTICAL_VELOCITY_DELTA,

@@ -4,8 +4,6 @@ from PIL import Image
 import cv2
 from transformers import CLIPProcessor, CLIPModel
 
-import sys
-sys.path.append('../')
 from personal.basketball_analysis.utils import read_stub, save_stub
 
 class LegacyTeamAssigner:

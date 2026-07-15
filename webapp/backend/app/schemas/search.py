@@ -2,11 +2,11 @@
 
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class SearchRequest(BaseModel):
-    query: str
+    query: str = Field(..., max_length=2000)
 
 
 class SearchResponse(BaseModel):

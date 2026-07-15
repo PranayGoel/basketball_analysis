@@ -22,6 +22,7 @@ class TestGetPaths(unittest.TestCase):
         mock_settings.uploads_dir = os.path.join(self.tmp_dir, "uploads")
         mock_settings.outputs_dir = os.path.join(self.tmp_dir, "outputs")
         mock_settings.reports_dir = os.path.join(self.tmp_dir, "reports")
+        mock_settings.thumbnails_dir = os.path.join(self.tmp_dir, "thumbnails")
 
     def tearDown(self):
         self.settings_patch.stop()
@@ -58,6 +59,7 @@ class TestSaveUpload(unittest.TestCase):
         mock_settings.uploads_dir = os.path.join(self.tmp_dir, "uploads")
         mock_settings.outputs_dir = os.path.join(self.tmp_dir, "outputs")
         mock_settings.reports_dir = os.path.join(self.tmp_dir, "reports")
+        mock_settings.thumbnails_dir = os.path.join(self.tmp_dir, "thumbnails")
 
     def tearDown(self):
         self.settings_patch.stop()
@@ -90,6 +92,7 @@ class TestDeleteVideoFiles(unittest.TestCase):
         mock_settings.uploads_dir = os.path.join(self.tmp_dir, "uploads")
         mock_settings.outputs_dir = os.path.join(self.tmp_dir, "outputs")
         mock_settings.reports_dir = os.path.join(self.tmp_dir, "reports")
+        mock_settings.thumbnails_dir = os.path.join(self.tmp_dir, "thumbnails")
 
     def tearDown(self):
         self.settings_patch.stop()
